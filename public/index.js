@@ -62,13 +62,65 @@ function renderPagination() {
   }
 }
 
-// 글쓰기 버튼 클릭 이벤트
+// 로그인 상태 업데이트
+function updateLoginBtn() {
+  const login = document.getElementById('login');
+  const currentUser = localStorage.getItem('currentUser');
+  const currentAdmin = localStorage.getItem('currentAdmin');
+  login.textContent = (currentUser || currentAdmin) ? '로그아웃' : '로그인';
+}
+
+// 로그인 상태 확인
+function checkLoginStatus() {
+  const currentUser = localStorage.getItem('currentUser');
+  const currentAdmin = localStorage.getItem('currentAdmin');
+  const writeBtn = document.getElementById('writeBtn');  // 게시글 작성 버튼
+
+  // 로그인한 사용자라면
+  if (currentUser || currentAdmin) {
+    writeBtn.disabled = false;  // 로그인 상태에서는 버튼 활성화
+  }
+}
+
+// 로그인 버튼 클릭 시 로그인 페이지로 이동
+const login = document.getElementById('login');
+if (login) {
+  login.addEventListener('click', () => {
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+    
+    if (currentUser || currentAdmin) {
+      // 이미 로그인 상태라면 로그아웃 처리
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentAdmin');
+      login.textContent = '로그인';  // 로그인 버튼 텍스트 업데이트
+      showToast('로그아웃 되었습니다');
+    } else {
+      // 로그인 상태가 아니라면 로그인 페이지로 이동
+      window.location.href = 'login.html';
+    }
+  });
+}
+
+// 토스트 알림 함수 (알림창)
+import { showToast } from './alert.js';
+
+// 게시글 작성 버튼 이벤트
 const writeBtn = document.getElementById('writeBtn');
 if (writeBtn) {
   writeBtn.addEventListener('click', () => {
-    window.location.href = 'post.html'; // 글쓰기 페이지로 이동
+    if (!localStorage.getItem('currentUser') && !localStorage.getItem('currentAdmin')) {
+      // 로그인되지 않은 경우
+      showToast('로그인이 필요합니다');
+    } else {
+        window.location.href = 'post.html';
+    }
   });
 }
+
+// 페이지 로드 시 로그인 상태 확인
+checkLoginStatus();
+updateLoginBtn();
 
 // 초기 데이터 불러오기
 fetchPosts();
