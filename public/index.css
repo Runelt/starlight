@@ -1,0 +1,103 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #fafafa;
+    color: #333;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#posts {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.post {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.post h3 {
+    margin: 0 0 6px 0;
+}
+
+.post h3 a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.post h3 a:hover {
+    text-decoration: underline;
+}
+
+.post p {
+    margin: 0;
+    color: #555;
+}
+
+#pagination {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#pagination button {
+    border: none;
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    margin: 0 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#pagination button:disabled {
+    background-color: #aaa;
+    cursor: default;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #0077ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #005fcc;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: white;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 6px 12px;
+    margin: 0 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.pagination button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    border: none;
+    cursor: default;
+}
+
+.pagination button:hover:not(.active) {
+    background-color: #e9ecef;
+}
