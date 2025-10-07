@@ -3,44 +3,54 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const PORT = 3000;
 
-const upload = multer({ dest: 'uploads/' });
+const PORT = process.env.PORT || 3000;
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const upload = multer({ dest: uploadDir });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// API 라우트 먼저 선언
+app.post('/api/posts', upload.single('video'), (req, res, next) => {
+  try {
+    const { title, content } = req.body;
+    const video = req.file ? req.file.filename : null;
+
+    let posts = [];
+    try {
+      posts = JSON.parse(fs.readFileSync('./posts.json'));
+    } catch {}
+
+    const newPost = {
+      id: Date.now(),
+      title,
+      content,
+      video,
+      createdAt: new Date().toISOString(),
+    };
+
+    posts.unshift(newPost);
+    fs.writeFileSync('./posts.json', JSON.stringify(posts, null, 2));
+
+    res.redirect('/');
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 정적 파일 제공 (마지막에 위치)
 app.use(express.static('public'));
 
-let posts = require('./posts.json');
-
-// 게시글 목록 가져오기
-app.get('/api/posts', (req, res) => {
-  res.json(posts);
-});
-
-// 게시글 업로드
-app.post('/api/posts', upload.single('video'), (req, res) => {
-  const { title, content } = req.body;
-  const video = req.file ? req.file.filename : null;
-
-  const newPost = {
-    id: Date.now(),
-    title,
-    content,
-    video,
-    createdAt: new Date().toISOString()
-  };
-
-  posts.unshift(newPost);
-  fs.writeFileSync('./posts.json', JSON.stringify(posts, null, 2));
-  res.redirect('/');
-});
-
-// 게시글 상세 보기
-app.get('/api/posts/:id', (req, res) => {
-  const post = posts.find(p => p.id == req.params.id);
-  if (!post) return res.status(404).send('Not found');
-  res.json(post);
+// 에러 핸들러
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('서버 내부 오류');
 });
 
 app.listen(PORT, () => {
