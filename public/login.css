@@ -1,0 +1,106 @@
+/* 전체 스타일 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* 탭 컨테이너 */
+.tab-container {
+    display: flex;
+    width: 100%;
+    max-width: 450px;
+    margin-top: 30px;
+}
+
+.tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 15px 0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+    font-size: 16px;
+    color: #495057;
+    border: none;
+    border-bottom: 3px solid transparent; /* 선을 숨기기 위해 초기 상태에서 투명하게 설정 */
+}
+
+.tab-btn.active {
+    color: #007bff;
+    border-color: #007bff; /* 활성화된 탭 아래에만 색을 추가 */
+}
+
+.tab-btn:hover {
+    color: #0056b3;
+    background-color: #f4f4f4;
+}
+
+/* 탭 내용 */
+.tab-content {
+    width: 100%;
+    max-width: 450px;
+    padding: 25px 20px;
+    font-size: 16px;
+    color: #495057;
+    margin-top: 10px;
+}
+
+.tab-content.active {
+    transform: translateX(-100%);
+    opacity: 1;
+}
+
+.tab-content.prev {
+    transform: translateX(100%);
+    opacity: 1;
+}
+
+/* 입력 필드 */
+.input-field {
+    width: 94%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.input-field:focus {
+    border-color: #007bff;
+    background-color: #fff;
+}
+
+/* 버튼 스타일 */
+.btn {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.signup {
+    color: #007bff;
+    text-align: center;
+    cursor: pointer;
+}
+
+.signup:hover {
+    color: #0056b3;
+}

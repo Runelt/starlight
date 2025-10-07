@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인</title>
+<link rel="stylesheet" href="login.css">
+<link rel="stylesheet" href="alert.css">
+</head>
+<body>
+
+<div class="tab-container">
+    <div class="tab-btn" data-tab="home" onclick="location.href='index.html'">홈</div>
+    <div class="tab-btn active" data-tab="login">로그인</div>
+    <div class="tab-btn" data-tab="admin">관리자</div>
+</div>
+
+<div class="tab-content" id="login-tab">
+    <input type="text" id="username" class="input-field" placeholder="아이디" required />
+    <input type="password" id="password" class="input-field" placeholder="비밀번호" required />
+    <button class="btn" id="login-btn">로그인</button>
+    <p class="signup" id="signup">회원가입</p>
+</div>
+
+<div class="tab-content" id="admin-tab" style="display:none;">
+    <input type="text" id="admin-username" class="input-field" placeholder="관리자 아이디" required />
+    <input type="password" id="admin-password" class="input-field" placeholder="관리자 비밀번호" required />
+    <button class="btn" id="admin-login-btn">관리자 로그인</button>
+</div>
+
+<div class="tab-content" id="home-tab" style="display:none;">
+    <button class="btn" onclick="location.href='index.html'">이동하기</button>
+</div>
+
+<div id="custom-toast-container"></div>
+<script src="login.js"></script>
+<script src="alert.js"></script>
+
+</body>
+</html>
