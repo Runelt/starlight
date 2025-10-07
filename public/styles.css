@@ -1,0 +1,121 @@
+/* 배경과 기본 폰트 */
+body {
+  font-family: '굴림', Gulim, sans-serif;
+  background-color: #e6e6e6;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+/* 전체 컨테이너 */
+#posts {
+  width: 960px;
+  margin: 30px auto;
+  background-color: #f4f4f4;
+  border: 1px solid #c8c8c8;
+  box-shadow: 0 0 5px #ccc;
+  padding: 15px;
+}
+
+/* 게시글 하나 스타일 */
+.post {
+  border-bottom: 1px solid #c8c8c8;
+  padding: 10px 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 제목 링크 스타일 */
+.post h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+.post h3 a {
+  text-decoration: none;
+  color: #333;
+}
+
+.post h3 a:hover {
+  text-decoration: underline;
+  color: #0077ff;
+}
+
+/* 내용 미리보기 */
+.post p {
+  font-size: 12px;
+  color: #555;
+  margin: 5px 0 0 0;
+  flex-grow: 2;
+}
+
+/* 비디오 썸네일 크기 */
+.post video {
+  width: 120px;
+  height: 80px;
+  border: 1px solid #aaa;
+  background-color: black;
+  flex-shrink: 0;
+}
+
+/* 상단 헤더 */
+h1 {
+  width: 960px;
+  margin: 30px auto 10px auto;
+  font-weight: bold;
+  font-size: 24px;
+  color: #111;
+}
+
+/* 글쓰기 링크 */
+a {
+  display: inline-block;
+  margin-left: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0077ff;
+  text-decoration: underline;
+}
+
+/* 폼 스타일 (글쓰기 페이지) */
+form {
+  width: 600px;
+  margin: 30px auto;
+  background-color: #f4f4f4;
+  border: 1px solid #c8c8c8;
+  padding: 20px;
+  box-shadow: 0 0 5px #ccc;
+  font-size: 14px;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  border: 1px solid #bbb;
+  padding: 8px;
+  margin-bottom: 15px;
+  font-family: '굴림', Gulim, sans-serif;
+  font-size: 14px;
+  resize: vertical;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #0077ff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #005fcc;
+}
