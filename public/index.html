@@ -1,30 +1,25 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>커뮤니티</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h1>커뮤니티 게시판</h1>
-  <a href="post.html">[ 글쓰기 ]</a>
-  <div id="posts"></div>
+<html lang="ko">
 
-  <script>
-    fetch('/api/posts')
-      .then(res => res.json())
-      .then(posts => {
-        const container = document.getElementById('posts');
-        posts.forEach(p => {
-          const el = document.createElement('div');
-          el.className = 'post';
-          el.innerHTML = `
-            <h3><a href="/view.html?id=${p.id}">${p.title}</a></h3>
-            <p>${p.content.substring(0, 100)}...</p>
-            ${p.video ? `<video width="200" controls src="/uploads/${p.video}"></video>` : ''}
-          `;
-          container.appendChild(el);
-        });
-      });
-  </script>
+<head>
+    <meta charset="UTF-8">
+    <title>이찬코리아</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="alert.css">
+</head>
+
+<body>
+    <header>
+        <h1>게시판</h1>
+    </header>
+    <main>
+        <button id="writeBtn">글쓰기</button>
+        <div id="posts"></div>
+        <div id="posts-container"></div>
+        <div id="pagination"></div>
+    </main>
+    <script src="index.js"></script>
+    <script src="alert.js"></script>
 </body>
+
 </html>
