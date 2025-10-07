@@ -1,5 +1,5 @@
 // 알림창
-function showToast(message) {
+export function showToast(message) {
     const toast = document.createElement("div");
     toast.className = "custom-toast";
     toast.innerText = message;
