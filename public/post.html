@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <title>게시글 작성하기</title>
     <link rel="stylesheet" href="post.css">
     <link rel="stylesheet" href="alert.css">
 </head>
+
 <body>
     <h1>게시글 작성하기</h1>
-    <form action="/api/posts" method="POST" enctype="multipart/form-data">
+    <form id="postForm" enctype="multipart/form-data">
         <input type="text" name="title" placeholder="제목" required><br>
         <textarea name="content" placeholder="내용" required></textarea><br>
+
+        <input type="hidden" name="author" id="post-author-input" value="">
+
         <label for="fileInput" class="custom-file-label">파일 선택</label>
         <input type="file" name="video" accept="video/*" id="fileInput" style="display: none;"><br>
         <button type="submit">등록하기</button>
-        <button type="button" onclick="window.location.href='index.html'">취소하기</button>
+        <button type="button" id="cancelBtn">취소하기</button>
     </form>
     <script type="module" src="post.js"></script>
     <script src="alert.js"></script>
     <div id="custom-toast-container"></div>
 </body>
+
 </html>
