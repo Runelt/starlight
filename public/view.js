@@ -1,17 +1,16 @@
 import { showToast } from './alert.js';
 
+const postMeta = document.getElementById('post-meta');
 const postTitle = document.getElementById('post-title');
 const postContent = document.getElementById('post-content');
 const postVideo = document.getElementById('post-video');
-const postDate = document.getElementById('post-date');
-const postAuthor = document.getElementById('post-author');
 const deleteBtn = document.getElementById('deleteBtn');
 const backBtn = document.getElementById('backBtn');
 
-backBtn.addEventListener('click', () => window.history.back());
-
 const params = new URLSearchParams(window.location.search);
 const postId = params.get('id');
+
+backBtn.addEventListener('click', () => window.history.back());
 
 async function fetchPost() {
     if (!postId) {
@@ -24,19 +23,26 @@ async function fetchPost() {
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         const post = await res.json();
 
+        // 작성자 표시: 로그인 상태 확인
+        const currentUser = localStorage.getItem('currentUser');
+        const currentAdmin = localStorage.getItem('currentAdmin');
+        let authorName = post.author || '익명';
+        if (currentUser && post.author === currentUser) {
+            authorName = currentUser;
+        } else if (currentAdmin) {
+            authorName = post.author || '익명';
+        }
+
+        postMeta.textContent = `${authorName} | ${new Date(post.createdAt).toLocaleString()}`;
         postTitle.textContent = post.title;
         postContent.textContent = post.content;
-        postDate.textContent = `작성일: ${new Date(post.createdAt).toLocaleString()}`;
-        postAuthor.textContent = `작성자: ${post.author || '익명'}`;
-        
+
         if (post.video) {
             postVideo.src = post.video;
             postVideo.style.display = 'block';
         }
 
-        // 로그인 사용자 확인 후 작성자가 맞으면 삭제 버튼 활성화
-        const currentUser = localStorage.getItem('currentUser');
-        const currentAdmin = localStorage.getItem('currentAdmin');
+        // 작성자 또는 관리자만 삭제 버튼 보이게
         if ((currentUser && currentUser === post.author) || currentAdmin) {
             deleteBtn.style.display = 'inline-block';
         }
