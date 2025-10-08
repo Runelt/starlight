@@ -66,7 +66,10 @@ async function handleLogin(isAdmin = false) {
         if (username === adminAccount.username && password === adminAccount.password) {
             localStorage.setItem('currentAdmin', username);
             // showToast 종료 후 바로 리디렉션
-            showToast('관리자 로그인 성공', () => window.location.href = 'index.html');
+            showToast(`관리자 로그인 성공`);
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000); // toast가 사라진 후 이동
         } else {
             showToast('관리자 아이디 또는 비밀번호가 틀렸습니다');
         }
@@ -77,7 +80,10 @@ async function handleLogin(isAdmin = false) {
         if (user) {
             localStorage.setItem('currentUser', username);
             // showToast 종료 후 바로 리디렉션
-            showToast(`환영합니다, ${username}님`, () => window.location.href = 'index.html');
+            showToast(`환영합니다, ${username}님`);
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000); // toast가 사라진 후 이동
         } else {
             showToast('아이디 또는 비밀번호가 틀렸습니다');
         }
