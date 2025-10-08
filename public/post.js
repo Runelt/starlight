@@ -4,17 +4,25 @@ const postForm = document.getElementById('postForm');
 const cancelBtn = document.getElementById('cancelBtn');
 const fileInput = document.getElementById('fileInput');
 const fileLabel = document.querySelector('.custom-file-label');
+const authorInput = document.getElementById('post-author-input');
 
-// 파일 선택 UI
 fileLabel.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => {
     fileLabel.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : '파일 선택';
 });
 
-// 취소 버튼
 cancelBtn.addEventListener('click', () => window.location.href = 'index.html');
 
-// 글 작성 제출
+// 페이지 로드 시 작성자 값을 셋팅
+function setAuthorField() {
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+    const who = currentUser || currentAdmin || '';
+    if (authorInput) authorInput.value = who;
+}
+setAuthorField();
+
+// 제출
 postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -27,26 +35,15 @@ postForm.addEventListener('submit', async (e) => {
     }
 
     const formData = new FormData(postForm);
-
-    // 비디오 업로드가 있는지 확인
-    const hasVideo = fileInput.files.length > 0;
-
     try {
-        let apiUrl = '/api/posts'; // 기본 내장 DB
-        if (hasVideo) {
-            // 비디오가 있으면 외장 DB 사용
-            apiUrl = '/api/posts/external'; // 서버에서 외장 DB 처리용 엔드포인트
-        }
-
-        const res = await fetch(apiUrl, {
+        const res = await fetch('/api/posts', {
             method: 'POST',
             body: formData
         });
 
-        if (res.ok) {
-            showToast('게시글이 등록되었습니다!', () => {
-                window.location.href = 'index.html';
-            });
+        // 서버가 redirect 한다면 fetch가 200을 반환. 간단하게 성공 판단
+        if (res.ok || res.redirected) {
+            showToast('게시글이 등록되었습니다!', () => window.location.href = 'index.html');
         } else {
             const text = await res.text();
             showToast(`게시글 등록 실패: ${text}`);
