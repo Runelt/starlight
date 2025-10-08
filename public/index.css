@@ -4,6 +4,7 @@ body {
     padding: 20px;
     background-color: #fafafa;
     color: #333;
+    resize: vertical;
 }
 
 header {
@@ -100,4 +101,5 @@ button:hover {
 
 .pagination button:hover:not(.active) {
     background-color: #e9ecef;
+
 }
