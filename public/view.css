@@ -90,8 +90,10 @@ textarea {
     width: 100%;
     min-height: 50px;
     resize: vertical;
+    font-family: Arial, sans-serif;
 }
 
 .comment-submit {
     display: flex;
 }
+
