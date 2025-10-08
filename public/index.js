@@ -38,35 +38,13 @@ function renderPage(page) {
         const div = document.createElement('div');
         div.className = 'post';
         div.innerHTML = `
-            <h3><a href="view.html?id=${post.id}">${post.title}</a></h3>
+            <h3><a href="view-post.html?id=${post.id}">${post.title}</a></h3>
             <p>${post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content}</p>
-            <button class="deleteBtn" data-id="${post.id}">삭제</button>
         `;
         postsEl.appendChild(div);
     });
 
-    addDeleteEvents();
     renderPagination();
-}
-
-// 삭제 버튼 이벤트
-function addDeleteEvents() {
-    document.querySelectorAll('.deleteBtn').forEach(button => {
-        button.addEventListener('click', async () => {
-            const postId = button.dataset.id;
-            const confirmed = confirm('정말 삭제하시겠습니까?');
-            if (!confirmed) return;
-
-            try {
-                const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error('삭제 실패');
-                showToast('게시글이 삭제되었습니다!');
-                fetchPosts(); // 글 목록 갱신
-            } catch (err) {
-                showToast(err.message);
-            }
-        });
-    });
 }
 
 // 페이지네이션 렌더링
@@ -128,4 +106,3 @@ writeBtn.addEventListener('click', () => {
 // 초기 실행
 checkLoginStatus();
 fetchPosts();
-
