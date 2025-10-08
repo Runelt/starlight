@@ -1,67 +1,137 @@
-// view-post.js
 import { showToast } from './alert.js';
 
-const params = new URLSearchParams(window.location.search);
-const postId = params.get('id');
+const loginBtn = document.getElementById('login');
+const writeBtn = document.getElementById('writeBtn');
+const postTitleEl = document.getElementById('post-title');
+const postContentEl = document.getElementById('post-content');
+const postVideoEl = document.getElementById('post-video');
+const postDateEl = document.getElementById('post-date');
+const commentsListEl = document.getElementById('comments-list');
+const commentInput = document.getElementById('comment-input');
+const commentSubmitBtn = document.getElementById('comment-submit');
+const deleteBtn = document.getElementById('deleteBtn');
 
-const titleEl = document.getElementById('title');
-const contentEl = document.getElementById('content');
-const videoEl = document.getElementById('video');
-const commentsEl = document.getElementById('comments');
-const backBtn = document.getElementById('backBtn');
+let posts = [];
+let post = null;
+let comments = [];
 
-// 게시글 가져오기
+// URL에서 id 가져오기
+const postId = new URLSearchParams(window.location.search).get('id');
+
+// 로그인 상태 확인
+function checkLoginStatus() {
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+    loginBtn.textContent = (currentUser || currentAdmin) ? '로그아웃' : '로그인';
+}
+
+loginBtn.addEventListener('click', () => {
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+
+    if (currentUser || currentAdmin) {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('currentAdmin');
+        showToast('로그아웃 되었습니다');
+        checkLoginStatus();
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
+// 글쓰기 버튼
+writeBtn.addEventListener('click', () => {
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+
+    if (!currentUser && !currentAdmin) {
+        showToast('로그인이 필요합니다');
+    } else {
+        window.location.href = 'post.html';
+    }
+});
+
+// 게시글 불러오기
 async function fetchPost() {
     try {
         const res = await fetch(`/api/posts/${postId}`);
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
-        const post = await res.json();
+        post = await res.json();
 
-        titleEl.textContent = post.title;
-        contentEl.textContent = post.content;
+        postTitleEl.textContent = post.title;
+        postContentEl.textContent = post.content;
+        postDateEl.textContent = new Date(post.createdAt).toLocaleString();
 
         if (post.video) {
-            videoEl.src = post.video;
-            videoEl.style.display = 'block';
+            postVideoEl.src = post.video;
+            postVideoEl.style.display = 'block';
         }
 
+        // 댓글 초기화
+        comments = post.comments || [];
+        renderComments();
     } catch (err) {
         showToast(err.message);
-        titleEl.textContent = '게시글 로드 실패';
-        contentEl.textContent = '';
     }
 }
 
-// 댓글 가져오기 (읽기 전용)
-async function fetchComments() {
+// 댓글 렌더링
+function renderComments() {
+    commentsListEl.innerHTML = '';
+    if (comments.length === 0) {
+        commentsListEl.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
+        return;
+    }
+    comments.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'comment';
+        div.innerHTML = `<strong>${c.author}:</strong> ${c.text}`;
+        commentsListEl.appendChild(div);
+    });
+}
+
+// 댓글 작성
+commentSubmitBtn.addEventListener('click', async () => {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) return showToast('로그인이 필요합니다');
+
+    const text = commentInput.value.trim();
+    if (!text) return showToast('댓글 내용을 입력하세요');
+
+    comments.push({ author: currentUser, text });
+    post.comments = comments;
+
+    // posts.json 업데이트
     try {
-        const res = await fetch(`/api/posts/${postId}/comments`);
-        if (!res.ok) throw new Error('댓글을 불러오는 데 실패했습니다.');
-        const comments = await res.json();
-
-        commentsEl.innerHTML = '';
-        if (comments.length === 0) {
-            commentsEl.textContent = '댓글이 없습니다.';
-            return;
-        }
-
-        comments.forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'comment';
-            div.textContent = `${c.author}: ${c.text}`;
-            commentsEl.appendChild(div);
+        await fetch(`/api/posts/${post.id}`, {
+            method: 'PUT', // PUT 메서드로 게시글 전체 업데이트
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(post)
         });
-
+        commentInput.value = '';
+        renderComments();
     } catch (err) {
-        commentsEl.textContent = err.message;
+        showToast('댓글 작성 실패');
     }
-}
+});
 
-// 목록 버튼
-backBtn.addEventListener('click', () => {
-    window.location.href = 'index.html';
+// 게시글 삭제
+deleteBtn.addEventListener('click', async () => {
+    const confirmed = confirm('정말 삭제하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+        const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('삭제 실패');
+        showToast('게시글이 삭제되었습니다!');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+    } catch (err) {
+        showToast(err.message);
+    }
 });
 
 // 초기 실행
+checkLoginStatus();
 fetchPost();
-fetchComments();
