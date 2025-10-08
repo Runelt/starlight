@@ -7,21 +7,32 @@
     <link rel="stylesheet" href="alert.css">
 </head>
 <body>
-    <h1 id="post-title"></h1>
-    <p id="post-content"></p>
-    <video id="post-video" controls style="max-width: 100%; display: none;"></video>
+    <header>
+        <h1>게시글 상세보기</h1>
+        <button id="login">로그인</button>
+        <button id="writeBtn">글쓰기</button>
+    </header>
 
-    <h3>댓글</h3>
-    <form id="commentForm">
-        <textarea id="commentText" placeholder="댓글을 작성하세요" required></textarea>
-        <button type="submit">댓글 작성</button>
-    </form>
+    <main>
+        <div id="post-detail">
+            <h2 id="post-title"></h2>
+            <p id="post-content"></p>
+            <video id="post-video" controls style="display:none; max-width: 100%;"></video>
+            <p id="post-date"></p>
+        </div>
 
-    <div id="comments"></div>
-    <button id="deleteBtn">삭제</button>
+        <section id="comments-section">
+            <h3>댓글</h3>
+            <div id="comments-list"></div>
+            <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
+            <button id="comment-submit">댓글 작성</button>
+        </section>
 
-    <script type="module" src="post.js"></script>
-    <script src="alert.js"></script>
+        <button id="deleteBtn">게시글 삭제</button>
+    </main>
+
     <div id="custom-toast-container"></div>
+    <script type="module" src="view.js"></script>
+    <script src="alert.js"></script>
 </body>
 </html>
