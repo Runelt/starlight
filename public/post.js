@@ -1,61 +1,58 @@
-// post.html
-window.onload = async function() {
-  const params = new URLSearchParams(window.location.search);
-  const postId = params.get('id');
+import { showToast } from './alert.js';
 
-  if (!postId) {
-    return alert("잘못된 접근입니다.");
-  }
+const postForm = document.getElementById('postForm');
+const cancelBtn = document.getElementById('cancelBtn');
+const fileInput = document.getElementById('fileInput');
+const fileLabel = document.querySelector('.custom-file-label');
 
-  const res = await fetch(`/api/posts/${postId}`);
-  if (res.ok) {
-    const post = await res.json();
-    // 게시글 내용 표시
-    document.getElementById('postTitle').innerText = post.title;
-    document.getElementById('postContent').innerText = post.content;
-    // 댓글도 함께 표시 (아래에서 다루는 댓글 기능과 결합)
-  } else {
-    alert('게시글을 불러오는 데 실패했습니다.');
-  }
-};
-
-document.getElementById('commentForm').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  
-  const commentText = document.getElementById('commentText').value;
-  const postId = new URLSearchParams(window.location.search).get('id');
-
-  const res = await fetch(`/api/posts/${postId}/comments`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: commentText })
-  });
-
-  if (res.ok) {
-    showToast('댓글이 추가되었습니다!');
-    loadComments(postId); // 댓글 갱신
-  } else {
-    showToast('댓글 추가 실패');
-  }
+// 파일 선택 UI
+fileLabel.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+    fileLabel.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : '파일 선택';
 });
 
-async function loadComments(postId) {
-  const res = await fetch(`/api/posts/${postId}/comments`);
-  if (res.ok) {
-    const comments = await res.json();
-    const commentsDiv = document.getElementById('comments');
-    commentsDiv.innerHTML = '';
-    comments.forEach(comment => {
-      const commentDiv = document.createElement('div');
-      commentDiv.className = 'comment';
-      commentDiv.innerHTML = `
-        <p>${comment.text}</p>
-      `;
-      commentsDiv.appendChild(commentDiv);
-    });
-  }
-}
+// 취소 버튼
+cancelBtn.addEventListener('click', () => window.location.href = 'index.html');
 
-// 페이지 로드 시 댓글 불러오기
-const postId = new URLSearchParams(window.location.search).get('id');
-loadComments(postId);
+// 글 작성 제출
+postForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 로그인 여부 확인
+    const currentUser = localStorage.getItem('currentUser');
+    const currentAdmin = localStorage.getItem('currentAdmin');
+    if (!currentUser && !currentAdmin) {
+        showToast('로그인이 필요합니다');
+        return;
+    }
+
+    const formData = new FormData(postForm);
+
+    // 비디오 업로드가 있는지 확인
+    const hasVideo = fileInput.files.length > 0;
+
+    try {
+        let apiUrl = '/api/posts'; // 기본 내장 DB
+        if (hasVideo) {
+            // 비디오가 있으면 외장 DB 사용
+            apiUrl = '/api/posts/external'; // 서버에서 외장 DB 처리용 엔드포인트
+        }
+
+        const res = await fetch(apiUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (res.ok) {
+            showToast('게시글이 등록되었습니다!', () => {
+                window.location.href = 'index.html';
+            });
+        } else {
+            const text = await res.text();
+            showToast(`게시글 등록 실패: ${text}`);
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('오류가 발생했습니다');
+    }
+});
