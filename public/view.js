@@ -117,7 +117,10 @@ deleteBtn.addEventListener('click', async () => {
     try {
         const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('삭제 실패');
-        showToast('게시글이 삭제되었습니다!', () => window.location.href = 'index.html');
+        showToast('게시글이 삭제되었습니다!');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000); // toast가 사라진 후 이동
     } catch (err) {
         showToast(err.message);
     }
