@@ -36,7 +36,7 @@ async function fetchPost() {
 
         // meta: 작성자(작게) + 작성일
         const author = post.author || '익명';
-        postMeta.textContent = `작성자: ${author} | 작성일: ${new Date(post.createdAt).toLocaleString()}`;
+        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString()}`;
         postTitle.textContent = post.title;
         postContent.textContent = post.content;
 
