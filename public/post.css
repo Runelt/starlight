@@ -1,10 +1,11 @@
 /* 배경과 기본 폰트 */
 body {
-  font-family: '굴림', Gulim, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   background-color: #e6e6e6;
   margin: 0;
   padding: 0;
   color: #222;
+  text-align: center;
 }
 
 /* 전체 컨테이너 */
@@ -97,11 +98,11 @@ form {
 }
 
 input[type="text"], textarea {
-  width: 100%;
+  width: 96%;
   border: 1px solid #bbb;
   padding: 8px;
   margin-bottom: 15px;
-  font-family: '굴림', Gulim, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 14px;
   resize: vertical;
 }
@@ -118,4 +119,18 @@ button {
 
 button:hover {
   background-color: #005fcc;
+}
+
+.custom-file-label {
+  display: flex;
+  width: 60px;
+  background-color: #0077ff; /* 배경 색상 */
+  color: white; /* 텍스트 색상 */
+  padding: 8px 20px; /* 여백 */
+  cursor: pointer; /* 커서 모양 */
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.custom-file-label:hover {
+  background-color: #005fcc; /* hover 상태에서 색상 변경 */
 }
