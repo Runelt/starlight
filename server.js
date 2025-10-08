@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-// multer 설정
+// multer 설정 (POST 업로드에만 사용)
 const upload = multer({ dest: uploadDir });
 
 // 미들웨어
@@ -28,12 +28,12 @@ try {
     posts = [];
 }
 
-// 게시글 목록
+// GET 전체
 app.get('/api/posts', (req, res) => {
     res.json(posts);
 });
 
-// 게시글 상세
+// GET 상세
 app.get('/api/posts/:id', (req, res) => {
     const id = Number(req.params.id);
     const post = posts.find(p => p.id === id);
@@ -41,53 +41,59 @@ app.get('/api/posts/:id', (req, res) => {
     res.json(post);
 });
 
-// 게시글 작성
+// POST 작성 (비디오 업로드 가능)
 app.post('/api/posts', upload.single('video'), (req, res) => {
-    const { title, content } = req.body;
+    const { title, content, author } = req.body;
     const video = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newPost = {
         id: Date.now(),
         title,
         content,
+        author: author || '익명',
         video,
         createdAt: new Date().toISOString(),
-        comments: [] // 댓글 초기화
+        comments: []
     };
 
     posts.unshift(newPost);
     fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
+    // 클라이언트가 폼으로 보낸 경우 redirect, AJAX로 받는다면 JSON 리턴하도록 클라이언트와 맞추세요
     res.redirect('/');
 });
 
-// 게시글 수정 (댓글 포함)
-app.put('/api/posts/:id', upload.single('video'), (req, res) => {
+// PUT 수정 (댓글 포함 — JSON 바디로 comments 배열 전달)
+app.put('/api/posts/:id', (req, res) => {
     const id = Number(req.params.id);
-    const post = posts.find(p => p.id === id);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
+    const index = posts.findIndex(p => p.id === id);
+    if (index === -1) return res.status(404).json({ error: 'Post not found' });
 
+    // req.body may contain title/content/comments etc.
     const { title, content, comments } = req.body;
 
-    if (title) post.title = title;
-    if (content) post.content = content;
-    if (req.file) post.video = `/uploads/${req.file.filename}`;
+    if (title !== undefined) posts[index].title = title;
+    if (content !== undefined) posts[index].content = content;
 
-    // 댓글 업데이트
-    if (comments) {
-        try {
-            post.comments = typeof comments === 'string' ? JSON.parse(comments) : comments;
-        } catch (e) {
-            console.error('comments parsing error', e);
+    // comments는 배열로 전달해야 함. (클라이언트에서 JSON.stringify 하지 않아야 함)
+    if (comments !== undefined) {
+        // 안전: 문자열로 올 수도 있으니 파싱 시도
+        if (typeof comments === 'string') {
+            try {
+                posts[index].comments = JSON.parse(comments);
+            } catch (e) {
+                // ignore parse error
+            }
+        } else if (Array.isArray(comments)) {
+            posts[index].comments = comments;
         }
     }
 
-    post.updatedAt = new Date().toISOString();
-
+    posts[index].updatedAt = new Date().toISOString();
     fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
-    res.json(post);
+    res.json(posts[index]);
 });
 
-// 게시글 삭제
+// DELETE
 app.delete('/api/posts/:id', (req, res) => {
     const id = Number(req.params.id);
     const initialLength = posts.length;
@@ -100,7 +106,4 @@ app.delete('/api/posts/:id', (req, res) => {
     res.json({ message: 'Deleted' });
 });
 
-// 서버 시작
-app.listen(PORT, () => {
-    console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
