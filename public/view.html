@@ -9,22 +9,21 @@
 </head>
 
 <body>
-    <header>
-        <button id="backBtn">뒤로가기</button>
-        <button id="deleteBtn" style="display:none;">삭제</button>
-    </header>
     <main>
         <div id="post-container">
-            <div id="post-header">
-                <h2 id="post-title"></h2>
-                <p id="post-author"></p>
-            </div>
+            <p id="post-meta"></p> <!-- 작성자 + 작성일 -->
+            <h2 id="post-title"></h2>
             <p id="post-content"></p>
             <video id="post-video" controls style="display:none;"></video>
-            <p id="post-date"></p>
+            <div id="post-actions">
+                <button id="backBtn">뒤로가기</button>
+                <button id="deleteBtn" style="display:none;">삭제</button>
+            </div>
         </div>
     </main>
     <div id="custom-toast-container"></div>
     <script type="module" src="view.js"></script>
     <script src="alert.js"></script>
 </body>
+
+</html>
