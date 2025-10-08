@@ -67,3 +67,7 @@ button {
 button:hover {
   background-color: #005fcc;
 }
+
+.comment-form-wrap {
+    display: flex;
+}
