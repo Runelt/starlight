@@ -4,18 +4,24 @@
     <meta charset="UTF-8">
     <title>게시글 보기</title>
     <link rel="stylesheet" href="post.css">
+    <link rel="stylesheet" href="alert.css">
 </head>
 <body>
-    <h1 id="title">게시글 제목</h1>
-    <p id="content">게시글 내용</p>
-    <video id="video" controls style="max-width:100%; display:none;"></video>
+    <h1 id="post-title"></h1>
+    <p id="post-content"></p>
+    <video id="post-video" controls style="max-width: 100%; display: none;"></video>
 
     <h3>댓글</h3>
-    <div id="comments">댓글을 불러오는 중...</div>
+    <form id="commentForm">
+        <textarea id="commentText" placeholder="댓글을 작성하세요" required></textarea>
+        <button type="submit">댓글 작성</button>
+    </form>
 
-    <button id="backBtn">목록으로 돌아가기</button>
+    <div id="comments"></div>
+    <button id="deleteBtn">삭제</button>
 
-    <div id="custom-toast-container"></div>
     <script type="module" src="post.js"></script>
+    <script src="alert.js"></script>
+    <div id="custom-toast-container"></div>
 </body>
 </html>
