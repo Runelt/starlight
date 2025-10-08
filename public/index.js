@@ -38,7 +38,7 @@ function renderPage(page) {
         const div = document.createElement('div');
         div.className = 'post';
         div.innerHTML = `
-            <h3><a href="view-post.html?id=${post.id}">${post.title}</a></h3>
+            <h3><a href="view.html?id=${post.id}">${post.title}</a></h3>
             <p>${post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content}</p>
             <button class="deleteBtn" data-id="${post.id}">삭제</button>
         `;
@@ -128,3 +128,4 @@ writeBtn.addEventListener('click', () => {
 // 초기 실행
 checkLoginStatus();
 fetchPosts();
+
