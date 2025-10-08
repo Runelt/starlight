@@ -40,14 +40,13 @@ video {
 }
 
 #deleteBtn {
+    padding: 8px 16px;
     background-color: red;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
     cursor: pointer;
-    float: right;
-    margin-top: 10px;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 #deleteBtn:hover {
@@ -55,17 +54,17 @@ video {
 }
 
 button {
-  padding: 8px 16px;
-  background-color: #0077ff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
+    padding: 8px 16px;
+    background-color: #0077ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 button:hover {
-  background-color: #005fcc;
+    background-color: #005fcc;
 }
 
 .comment-form-wrap {
@@ -82,8 +81,18 @@ button:hover {
     text-align: left;
 }
 
-.textarea {
-    font-family: Arial, Helvetica, sans-serif;
+input[type="text"], textarea {
+  width: 96%;
+  border: 1px solid #bbb;
+  padding: 8px;
+  margin-bottom: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  resize: vertical;
+}
+
+#post-content #post-title {
+    resize: vertical;
 }
 
 .comment-submit {
