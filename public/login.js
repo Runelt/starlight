@@ -69,7 +69,7 @@ async function handleLogin(isAdmin = false) {
             showToast(`관리자 로그인 성공`);
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 2000); // toast가 사라진 후 이동
+            }, 1000); // toast가 사라진 후 이동
         } else {
             showToast('관리자 아이디 또는 비밀번호가 틀렸습니다');
         }
@@ -83,7 +83,7 @@ async function handleLogin(isAdmin = false) {
             showToast(`환영합니다, ${username}님`);
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 2000); // toast가 사라진 후 이동
+            }, 1000); // toast가 사라진 후 이동
         } else {
             showToast('아이디 또는 비밀번호가 틀렸습니다');
         }
@@ -98,3 +98,4 @@ const signupBtn = document.getElementById('signup');
 if (loginBtn) loginBtn.addEventListener('click', () => handleLogin(false));
 if (adminLoginBtn) adminLoginBtn.addEventListener('click', () => handleLogin(true));
 if (signupBtn) signupBtn.addEventListener('click', () => showToast('회원가입은 디스코드로 문의해주세요'));
+
