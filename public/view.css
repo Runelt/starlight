@@ -81,17 +81,14 @@ button:hover {
     text-align: left;
 }
 
-input[type="text"], textarea {
-  width: 96%;
-  border: 1px solid #bbb;
-  padding: 8px;
-  margin-bottom: 15px;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
-  resize: vertical;
+.comment, .comment textarea {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
-#post-content #post-title {
+textarea {
+    width: 100%;
+    min-height: 50px;
     resize: vertical;
 }
 
