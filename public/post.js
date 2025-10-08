@@ -43,7 +43,10 @@ postForm.addEventListener('submit', async (e) => {
 
         // 서버가 redirect 한다면 fetch가 200을 반환. 간단하게 성공 판단
         if (res.ok || res.redirected) {
-            showToast('게시글이 등록되었습니다!', () => window.location.href = 'index.html');
+            showToast('게시글이 등록되었습니다!');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000); // toast가 사라진 후 이동
         } else {
             const text = await res.text();
             showToast(`게시글 등록 실패: ${text}`);
