@@ -1,137 +1,62 @@
 import { showToast } from './alert.js';
 
-const loginBtn = document.getElementById('login');
-const writeBtn = document.getElementById('writeBtn');
-const postTitleEl = document.getElementById('post-title');
-const postContentEl = document.getElementById('post-content');
-const postVideoEl = document.getElementById('post-video');
-const postDateEl = document.getElementById('post-date');
-const commentsListEl = document.getElementById('comments-list');
-const commentInput = document.getElementById('comment-input');
-const commentSubmitBtn = document.getElementById('comment-submit');
+const postTitle = document.getElementById('post-title');
+const postContent = document.getElementById('post-content');
+const postVideo = document.getElementById('post-video');
+const postDate = document.getElementById('post-date');
+const postAuthor = document.getElementById('post-author');
 const deleteBtn = document.getElementById('deleteBtn');
+const backBtn = document.getElementById('backBtn');
 
-let posts = [];
-let post = null;
-let comments = [];
+backBtn.addEventListener('click', () => window.history.back());
 
-// URL에서 id 가져오기
-const postId = new URLSearchParams(window.location.search).get('id');
+const params = new URLSearchParams(window.location.search);
+const postId = params.get('id');
 
-// 로그인 상태 확인
-function checkLoginStatus() {
-    const currentUser = localStorage.getItem('currentUser');
-    const currentAdmin = localStorage.getItem('currentAdmin');
-    loginBtn.textContent = (currentUser || currentAdmin) ? '로그아웃' : '로그인';
-}
-
-loginBtn.addEventListener('click', () => {
-    const currentUser = localStorage.getItem('currentUser');
-    const currentAdmin = localStorage.getItem('currentAdmin');
-
-    if (currentUser || currentAdmin) {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('currentAdmin');
-        showToast('로그아웃 되었습니다');
-        checkLoginStatus();
-    } else {
-        window.location.href = 'login.html';
-    }
-});
-
-// 글쓰기 버튼
-writeBtn.addEventListener('click', () => {
-    const currentUser = localStorage.getItem('currentUser');
-    const currentAdmin = localStorage.getItem('currentAdmin');
-
-    if (!currentUser && !currentAdmin) {
-        showToast('로그인이 필요합니다');
-    } else {
-        window.location.href = 'post.html';
-    }
-});
-
-// 게시글 불러오기
 async function fetchPost() {
+    if (!postId) {
+        showToast('게시글 ID가 없습니다.');
+        return;
+    }
+
     try {
         const res = await fetch(`/api/posts/${postId}`);
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
-        post = await res.json();
+        const post = await res.json();
 
-        postTitleEl.textContent = post.title;
-        postContentEl.textContent = post.content;
-        postDateEl.textContent = new Date(post.createdAt).toLocaleString();
-
+        postTitle.textContent = post.title;
+        postContent.textContent = post.content;
+        postDate.textContent = `작성일: ${new Date(post.createdAt).toLocaleString()}`;
+        postAuthor.textContent = `작성자: ${post.author || '익명'}`;
+        
         if (post.video) {
-            postVideoEl.src = post.video;
-            postVideoEl.style.display = 'block';
+            postVideo.src = post.video;
+            postVideo.style.display = 'block';
         }
 
-        // 댓글 초기화
-        comments = post.comments || [];
-        renderComments();
+        // 로그인 사용자 확인 후 작성자가 맞으면 삭제 버튼 활성화
+        const currentUser = localStorage.getItem('currentUser');
+        const currentAdmin = localStorage.getItem('currentAdmin');
+        if ((currentUser && currentUser === post.author) || currentAdmin) {
+            deleteBtn.style.display = 'inline-block';
+        }
+
     } catch (err) {
         showToast(err.message);
     }
 }
 
-// 댓글 렌더링
-function renderComments() {
-    commentsListEl.innerHTML = '';
-    if (comments.length === 0) {
-        commentsListEl.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
-        return;
-    }
-    comments.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'comment';
-        div.innerHTML = `<strong>${c.author}:</strong> ${c.text}`;
-        commentsListEl.appendChild(div);
-    });
-}
-
-// 댓글 작성
-commentSubmitBtn.addEventListener('click', async () => {
-    const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) return showToast('로그인이 필요합니다');
-
-    const text = commentInput.value.trim();
-    if (!text) return showToast('댓글 내용을 입력하세요');
-
-    comments.push({ author: currentUser, text });
-    post.comments = comments;
-
-    // posts.json 업데이트
-    try {
-        await fetch(`/api/posts/${post.id}`, {
-            method: 'PUT', // PUT 메서드로 게시글 전체 업데이트
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(post)
-        });
-        commentInput.value = '';
-        renderComments();
-    } catch (err) {
-        showToast('댓글 작성 실패');
-    }
-});
-
-// 게시글 삭제
 deleteBtn.addEventListener('click', async () => {
     const confirmed = confirm('정말 삭제하시겠습니까?');
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('삭제 실패');
-        showToast('게시글이 삭제되었습니다!');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        showToast('게시글이 삭제되었습니다!', () => window.location.href = 'index.html');
     } catch (err) {
         showToast(err.message);
     }
 });
 
-// 초기 실행
-checkLoginStatus();
 fetchPost();
