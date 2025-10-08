@@ -4,7 +4,7 @@ body {
     padding: 20px;
     background-color: #fafafa;
     color: #333;
-    resize: vertical;
+    overflow-y: scroll;
 }
 
 header {
@@ -15,6 +15,8 @@ header {
 #posts {
     max-width: 600px;
     margin: 0 auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .post {
@@ -101,5 +103,4 @@ button:hover {
 
 .pagination button:hover:not(.active) {
     background-color: #e9ecef;
-
 }
