@@ -33,7 +33,7 @@ tabBtns.forEach(btn => {
 const adminAccount = { username: 'admin', password: 'admin123' };
 
 // Gist URL (테스트 시 CORS 문제 주의)
-const usersGistUrl = 'https://gist.githubusercontent.com/Runelt/7d391bd9279f03ddf247b71c4a3f8f23/raw/dcb863e008245520aa11ceeb43388f2c398b7935/users.json';
+const usersGistUrl = 'https://gist.githubusercontent.com/Runelt/7d391bd9279f03ddf247b71c4a3f8f23/raw/b1ce1d20665fa4b62bfefe89d2d9d97d2e1d2cef/users.json';
 
 // 유저 데이터 가져오기
 async function fetchUsers() {
@@ -98,4 +98,5 @@ const signupBtn = document.getElementById('signup');
 if (loginBtn) loginBtn.addEventListener('click', () => handleLogin(false));
 if (adminLoginBtn) adminLoginBtn.addEventListener('click', () => handleLogin(true));
 if (signupBtn) signupBtn.addEventListener('click', () => showToast('회원가입은 디스코드로 문의해주세요'));
+
 
