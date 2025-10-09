@@ -1,7 +1,8 @@
 #custom-toast-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%);
   z-index: 9999;
 }
 
@@ -13,7 +14,7 @@
   border-radius: 8px;
   font-size: 14px;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(-20px);
   animation: slideIn 0.5s forwards, fadeOut 0.5s ease-out forwards;
   animation-delay: 0s, 3s;
 }
@@ -28,6 +29,6 @@
 @keyframes fadeOut {
   to {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-20px);
   }
 }
