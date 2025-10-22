@@ -3,35 +3,412 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게시글 작성하기</title>
-    <link rel="stylesheet" href="post.css">
     <link rel="stylesheet" href="alert.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR';
+            background: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .back-link:hover {
+            background: #f8f9fa;
+            color: #2d3748;
+            border-color: #adb5bd;
+        }
+        
+        /* 폼 컨테이너 */
+        .form-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        /* 폼 그룹 */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        /* 입력 필드 */
+        input[type="text"], 
+        textarea {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #2d3748;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+        
+        input[type="text"]:focus, 
+        textarea:focus {
+            outline: none;
+            border-color: #4a5568;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+        }
+        
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        /* 파일 업로드 */
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-upload-label:hover {
+            background: #e9ecef;
+            border-color: #a0aec0;
+        }
+        
+        .file-upload-label.has-files {
+            background: #e7f5ff;
+            border-color: #4a5568;
+            color: #2d3748;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        /* 버튼 그룹 */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button[type="submit"] {
+            background: #0077ff;
+            color: white;
+            box-shadow: 0 2px 8px rgba(45, 55, 72, 0.2);
+        }
+        
+        button[type="submit"]:hover {
+            background: #005fcc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
+        }
+        
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+        
+        button[type="button"] {
+            background: #f8f9fa;
+            color: #4a5568;
+            border: 1px solid #dee2e6;
+        }
+        
+        button[type="button"]:hover {
+            background: #e9ecef;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column-reverse;
+            }
+        }
+        
+        /* 로딩 상태 */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>게시글 작성하기</h1>
-    
-    <form id="postForm" enctype="multipart/form-data">
-        <!-- 제목 -->
-        <input type="text" name="title" placeholder="제목" required><br>
-        
-        <!-- 작성자 (hidden) -->
-        <input type="hidden" name="author" id="post-author-input" value="">
-        
-        <!-- 컨텐츠 블록 추가 영역 -->
-        <div id="contentBlocksContainer">
-            <textarea name="content" placeholder="내용" required></textarea><br>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>게시글 작성하기</h1>
+            <a href="index.html" class="back-link">
+                목록으로
+            </a>
         </div>
         
-        <!-- 파일 업로드 -->
-        <input type="file" name="media" accept="image/*,video/*" id="fileInput" multiple style="display:none;">
-        <label for="fileInput" class="custom-file-label">파일 선택</label><br>
+        <!-- 폼 -->
+        <div class="form-container">
+            <form id="postForm" enctype="multipart/form-data">
+                <!-- 제목 -->
+                <div class="form-group">
+                    <label for="titleInput">제목</label>
+                    <input type="text" id="titleInput" name="title" placeholder="제목을 입력하세요" required>
+                </div>
+                
+                <!-- 작성자 (hidden) -->
+                <input type="hidden" name="author" id="post-author-input" value="">
+                
+                <!-- 내용 -->
+                <div class="form-group">
+                    <label for="contentInput">내용</label>
+                    <textarea id="contentInput" name="content" placeholder="내용을 입력하세요" required></textarea>
+                </div>
+                
+                <!-- 파일 업로드 -->
+                <div class="form-group">
+                    <label>첨부파일</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" name="media" accept="image/*,video/*" id="fileInput" multiple>
+                        <label for="fileInput" class="file-upload-label" id="fileLabel">
+                            <span id="fileLabelText">파일을 선택하거나 드래그하세요</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 버튼 그룹 -->
+                <div class="button-group">
+                    <button type="submit" id="submitBtn">등록하기</button>
+                    <button type="button" id="cancelBtn">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { showToast } from './alert.js';
         
-        <!-- 폼 액션 버튼 -->
-        <button type="submit">등록하기</button>
-        <button type="button" id="cancelBtn">취소하기</button>
-    </form>
-    <script type="module" src="post.js"></script> 
+        const postForm = document.getElementById('postForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileLabelText = document.getElementById('fileLabelText');
+        const authorInput = document.getElementById('post-author-input');
+        
+        // 페이지 로드 시 작성자 설정
+        function setAuthorField() {
+            const currentUser = localStorage.getItem('currentUser');
+            const currentAdmin = localStorage.getItem('currentAdmin');
+            const author = currentUser || currentAdmin || '';
+            if (authorInput) authorInput.value = author;
+        }
+        setAuthorField();
+        
+        // 파일 선택 시 라벨 업데이트
+        function updateFileLabel() {
+            const fileCount = fileInput.files.length;
+            
+            if (fileCount === 0) {
+                fileLabelText.textContent = '파일을 선택하거나 드래그하세요';
+                fileLabel.classList.remove('has-files');
+            } else if (fileCount === 1) {
+                const fileName = fileInput.files[0].name;
+                fileLabelText.textContent = fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName;
+                fileLabel.classList.add('has-files');
+            } else {
+                fileLabelText.textContent = `${fileCount}개의 파일이 선택됨`;
+                fileLabel.classList.add('has-files');
+            }
+        }
+        
+        fileInput.addEventListener('change', updateFileLabel);
+        
+        // 드래그 앤 드롭
+        fileLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileLabel.style.borderColor = '#4a5568';
+            fileLabel.style.background = '#e7f5ff';
+        });
+        
+        fileLabel.addEventListener('dragleave', () => {
+            fileLabel.style.borderColor = '#cbd5e0';
+            fileLabel.style.background = '#f8f9fa';
+        });
+        
+        fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileLabel.style.borderColor = '#cbd5e0';
+            fileLabel.style.background = '#f8f9fa';
+            
+            fileInput.files = e.dataTransfer.files;
+            updateFileLabel();
+        });
+        
+        // 취소 버튼
+        cancelBtn.addEventListener('click', () => {
+            if (confirm('작성중인 내용이 있습니다. 정말 취소하시겠습니까?')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // 폼 제출
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 로그인 확인
+            const currentUser = localStorage.getItem('currentUser');
+            const currentAdmin = localStorage.getItem('currentAdmin');
+            
+            if (!currentUser && !currentAdmin) {
+                showToast('로그인이 필요합니다');
+                return;
+            }
+            
+            // 버튼 비활성화
+            submitBtn.disabled = true;
+            submitBtn.textContent = '등록 중...';
+            
+            try {
+                // FormData 생성
+                const formData = new FormData();
+                formData.append('title', postForm.title.value.trim());
+                formData.append('author', authorInput.value);
+                
+                // 컨텐츠 블록 생성
+                const contentBlocks = [];
+                
+                const contentText = postForm.content.value.trim();
+                if (contentText) {
+                    contentBlocks.push({ type: 'text', content: contentText });
+                }
+                
+                // 파일 처리
+                Array.from(fileInput.files).forEach(file => {
+                    const type = file.type.startsWith('image/') ? 'image' : 'video';
+                    contentBlocks.push({ type });
+                    formData.append('media', file);
+                });
+                
+                formData.append('contentBlocks', JSON.stringify(contentBlocks));
+                
+                // API 호출
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (res.ok || res.redirected) {
+                    showToast('게시글이 등록되었습니다');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    const text = await res.text();
+                    showToast(`게시글 등록 실패: ${text}`);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '등록하기';
+                }
+            } catch (err) {
+                console.error('게시글 등록 오류:', err);
+                showToast('오류가 발생했습니다. 다시 시도해주세요.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '등록하기';
+            }
+        });
+    </script>
+    
     <script src="alert.js"></script>
     <div id="custom-toast-container"></div>
 </body>
