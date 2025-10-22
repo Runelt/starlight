@@ -3,6 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const PUBLIC_DIR = path.join(__dirname, 'public');
 require('dotenv').config();
 
 const app = express();
