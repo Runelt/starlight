@@ -10,18 +10,28 @@
 
 <body>
     <h1>게시글 작성하기</h1>
+    
     <form id="postForm" enctype="multipart/form-data">
+        <!-- 제목 -->
         <input type="text" name="title" placeholder="제목" required><br>
-        <textarea name="content" placeholder="내용" required></textarea><br>
-
+        
+        <!-- 작성자 (hidden) -->
         <input type="hidden" name="author" id="post-author-input" value="">
-
-        <label for="fileInput" class="custom-file-label">파일 선택</label>
-        <input type="file" name="video" accept="video/*" id="fileInput" style="display: none;"><br>
+        
+        <!-- 컨텐츠 블록 추가 영역 -->
+        <div id="contentBlocksContainer">
+            <textarea name="content" placeholder="내용" required></textarea><br>
+        </div>
+        
+        <!-- 파일 업로드 -->
+        <input type="file" name="media" accept="image/*,video/*" id="fileInput" multiple style="display:none;">
+        <label for="fileInput" class="custom-file-label">파일 선택</label><br>
+        
+        <!-- 폼 액션 버튼 -->
         <button type="submit">등록하기</button>
         <button type="button" id="cancelBtn">취소하기</button>
     </form>
-    <script type="module" src="post.js"></script>
+    <script type="module" src="post.js"></script> 
     <script src="alert.js"></script>
     <div id="custom-toast-container"></div>
 </body>
