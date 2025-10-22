@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -90,9 +91,7 @@ app.get('/api/posts/:id', async (req, res) => {
             LIMIT 1
         `;
         const result = await pool.query(q, [id]);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Post not found' });
-        }
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
         res.json(result.rows[0]);
     } catch (err) {
         console.error(`GET /api/posts/${id} 오류:`, err);
@@ -104,32 +103,22 @@ app.get('/api/posts/:id', async (req, res) => {
 app.post('/api/posts', cpUpload, async (req, res) => {
     try {
         const { title, author, contentBlocks } = req.body;
-        
-        if (!title || !title.trim()) {
-            return res.status(400).json({ error: 'Title required' });
-        }
-        
+        if (!title || !title.trim()) return res.status(400).json({ error: 'Title required' });
+
         // contentBlocks 파싱
         let blocks = [];
         try {
             blocks = JSON.parse(contentBlocks || '[]');
         } catch (e) {
-            console.error('contentBlocks 파싱 실패:', e);
             return res.status(400).json({ error: 'Invalid contentBlocks format' });
         }
-        
-        if (!Array.isArray(blocks)) {
-            return res.status(400).json({ error: 'contentBlocks must be an array' });
-        }
-        
+        if (!Array.isArray(blocks)) return res.status(400).json({ error: 'contentBlocks must be an array' });
+
         // 업로드된 파일들을 순서대로 블록에 매칭
         if (req.files && req.files.length > 0) {
             let fileIndex = 0;
-            
             for (let i = 0; i < blocks.length; i++) {
                 const block = blocks[i];
-                
-                // 미디어 블록이고 아직 url이 없으면 파일 할당
                 if ((block.type === 'image' || block.type === 'video') && !block.url) {
                     if (fileIndex < req.files.length) {
                         const file = req.files[fileIndex];
@@ -140,31 +129,22 @@ app.post('/api/posts', cpUpload, async (req, res) => {
                 }
             }
         }
-        
-        // 텍스트 블록 검증
+
+        // 텍스트 블록 기본값
         blocks.forEach(block => {
-            if (block.type === 'text' && !block.content) {
-                block.content = '';
-            }
+            if (block.type === 'text' && !block.content) block.content = '';
         });
-        
+
         const q = `
             INSERT INTO posts (title, author, content_blocks)
             VALUES ($1, $2, $3)
-            RETURNING id, title, author, content_blocks AS "contentBlocks", 
+            RETURNING id, title, author, content_blocks AS "contentBlocks",
                       comments, created_at AS "createdAt", updated_at AS "updatedAt"
         `;
-        const values = [
-            title.trim(), 
-            author || '익명', 
-            JSON.stringify(blocks)
-        ];
-        
+        const values = [title.trim(), author || '익명', JSON.stringify(blocks)];
         const result = await pool.query(q, values);
-        
-        console.log(`✅ 게시글 생성 성공 (ID: ${result.rows[0].id})`);
         res.status(201).json(result.rows[0]);
-        
+
     } catch (err) {
         console.error('POST /api/posts 오류:', err);
         res.status(500).json({ error: 'DB insert error', details: err.message });
@@ -180,35 +160,20 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
         const fields = [];
         const values = [];
         let idx = 1;
-        
-        // 제목 업데이트
-        if (req.body.title !== undefined) {
-            fields.push(`title = $${idx++}`);
-            values.push(req.body.title.trim());
-        }
-        
-        // 작성자 업데이트
-        if (req.body.author !== undefined) {
-            fields.push(`author = $${idx++}`);
-            values.push(req.body.author);
-        }
-        
-        // contentBlocks 업데이트
+
+        if (req.body.title !== undefined) { fields.push(`title = $${idx++}`); values.push(req.body.title.trim()); }
+        if (req.body.author !== undefined) { fields.push(`author = $${idx++}`); values.push(req.body.author); }
+
         if (req.body.contentBlocks !== undefined) {
             let blocks = [];
-            try {
-                blocks = JSON.parse(req.body.contentBlocks);
-            } catch (e) {
+            try { blocks = JSON.parse(req.body.contentBlocks); } catch (e) {
                 return res.status(400).json({ error: 'Invalid contentBlocks format' });
             }
-            
-            // 업로드된 파일 매칭
+
             if (req.files && req.files.length > 0) {
                 let fileIndex = 0;
-                
                 for (let i = 0; i < blocks.length; i++) {
                     const block = blocks[i];
-                    
                     if ((block.type === 'image' || block.type === 'video') && !block.url) {
                         if (fileIndex < req.files.length) {
                             const file = req.files[fileIndex];
@@ -219,49 +184,35 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
                     }
                 }
             }
-            
+
             fields.push(`content_blocks = $${idx++}`);
             values.push(JSON.stringify(blocks));
         }
-        
-        // 댓글 업데이트
+
         if (req.body.comments !== undefined) {
             let commentsVal = req.body.comments;
             if (typeof commentsVal === 'string') {
-                try {
-                    commentsVal = JSON.parse(commentsVal);
-                } catch (e) {
-                    return res.status(400).json({ error: 'Invalid comments format' });
-                }
+                try { commentsVal = JSON.parse(commentsVal); } catch(e) { return res.status(400).json({ error: 'Invalid comments format' }); }
             }
             fields.push(`comments = $${idx++}`);
             values.push(JSON.stringify(commentsVal));
         }
-        
-        if (fields.length === 0) {
-            return res.status(400).json({ error: 'No fields to update' });
-        }
-        
+
+        if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
         fields.push(`updated_at = NOW()`);
-        
+
         const q = `
-            UPDATE posts 
-            SET ${fields.join(', ')} 
-            WHERE id = $${idx} 
-            RETURNING id, title, author, content_blocks AS "contentBlocks", 
+            UPDATE posts SET ${fields.join(', ')}
+            WHERE id = $${idx}
+            RETURNING id, title, author, content_blocks AS "contentBlocks",
                       comments, created_at AS "createdAt", updated_at AS "updatedAt"
         `;
         values.push(id);
-        
         const result = await pool.query(q, values);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Post not found' });
-        }
-        
-        console.log(`✅ 게시글 수정 성공 (ID: ${id})`);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
+
         res.json(result.rows[0]);
-        
+
     } catch (err) {
         console.error(`PUT /api/posts/${id} 오류:`, err);
         res.status(500).json({ error: 'DB update error', details: err.message });
@@ -272,34 +223,25 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
 app.delete('/api/posts/:id', async (req, res) => {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ error: 'Invalid id' });
-    
+
     try {
         const q = `DELETE FROM posts WHERE id = $1 RETURNING content_blocks`;
         const result = await pool.query(q, [id]);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Post not found' });
-        }
-        
-        // 업로드된 파일 삭제
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
+
         const blocks = result.rows[0].content_blocks || [];
         blocks.forEach(block => {
             if (block.url) {
                 const rel = block.url.startsWith('/') ? block.url.slice(1) : block.url;
                 const fpath = path.join(__dirname, rel);
                 fs.unlink(fpath, err => {
-                    if (err) {
-                        console.warn(`파일 삭제 실패 (무시): ${fpath}`, err.message);
-                    } else {
-                        console.log(`✅ 파일 삭제: ${fpath}`);
-                    }
+                    if (err) console.warn(`파일 삭제 실패 (무시): ${fpath}`, err.message);
                 });
             }
         });
-        
-        console.log(`✅ 게시글 삭제 성공 (ID: ${id})`);
+
         res.json({ message: 'Deleted', id });
-        
+
     } catch (err) {
         console.error(`DELETE /api/posts/${id} 오류:`, err);
         res.status(500).json({ error: 'DB delete error', details: err.message });
@@ -309,18 +251,13 @@ app.delete('/api/posts/:id', async (req, res) => {
 // 에러 핸들링 미들웨어
 app.use((err, req, res, next) => {
     console.error('서버 오류:', err);
-    res.status(500).json({ 
-        error: 'Internal server error', 
-        details: process.env.NODE_ENV === 'development' ? err.message : undefined 
-    });
+    res.status(500).json({ error: 'Internal server error', details: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
 // 404 핸들러
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
-
-const length = post.content ? post.content.length : 0;
 
 // 서버 시작
 app.listen(PORT, () => {
