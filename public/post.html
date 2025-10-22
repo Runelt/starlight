@@ -67,8 +67,7 @@
         }
         
         /* 입력 필드 */
-        input[type="text"], 
-        textarea {
+        input[type="text"] {
             width: 100%;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
@@ -80,57 +79,130 @@
             background: #ffffff;
         }
         
-        input[type="text"]:focus, 
-        textarea:focus {
+        input[type="text"]:focus {
             outline: none;
             border-color: #4a5568;
             background: white;
             box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
         }
         
-        textarea {
-            min-height: 200px;
+        /* 콘텐츠 블록 컨테이너 */
+        #contentBlocksContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* 개별 콘텐츠 블록 */
+        .content-block {
+            position: relative;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+        }
+        
+        .content-block textarea {
+            width: 100%;
+            border: none;
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #2d3748;
+            min-height: 100px;
             resize: vertical;
             line-height: 1.6;
         }
         
-        /* 파일 업로드 */
-        .file-upload-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
+        .content-block textarea:focus {
+            outline: 2px solid #4a5568;
         }
         
-        .file-upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        /* 이미지/비디오 블록 */
+        .content-block.media-block {
+            background: white;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .content-block img,
+        .content-block video {
             width: 100%;
-            padding: 16px;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        /* 블록 헤더 */
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
             background: #f8f9fa;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .block-type {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .block-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .block-btn {
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #718096;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .block-btn:hover {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+        
+        .block-btn.delete {
+            color: #e53e3e;
+        }
+        
+        .block-btn.delete:hover {
+            background: #fff5f5;
+        }
+        
+        /* 블록 추가 버튼들 */
+        .add-block-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .add-block-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
             border: 2px dashed #cbd5e0;
             border-radius: 8px;
             color: #4a5568;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
         
-        .file-upload-label:hover {
-            background: #e9ecef;
-            border-color: #a0aec0;
-        }
-        
-        .file-upload-label.has-files {
-            background: #e7f5ff;
+        .add-block-btn:hover {
+            background: #f8f9fa;
             border-color: #4a5568;
-            color: #2d3748;
-        }
-        
-        input[type="file"] {
-            display: none;
         }
         
         /* 버튼 그룹 */
@@ -140,7 +212,8 @@
             margin-top: 32px;
         }
         
-        button {
+        button[type="submit"],
+        button[type="button"] {
             flex: 1;
             padding: 14px 24px;
             border: none;
@@ -155,13 +228,13 @@
         button[type="submit"] {
             background: #0077ff;
             color: white;
-            box-shadow: 0 2px 8px rgba(45, 55, 72, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 119, 255, 0.2);
         }
         
         button[type="submit"]:hover {
             background: #005fcc;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 119, 255, 0.3);
         }
         
         button[type="submit"]:active {
@@ -178,31 +251,31 @@
             background: #e9ecef;
         }
         
+        /* 로딩 상태 */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 파일 입력 숨김 */
+        input[type="file"] {
+            display: none;
+        }
+        
         /* 반응형 */
         @media (max-width: 768px) {
             body {
                 padding: 12px;
             }
             
-            .header {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
-            
             .form-container {
                 padding: 20px;
             }
             
-            .button-group {
-                flex-direction: column-reverse;
+            .button-group,
+            .add-block-buttons {
+                flex-direction: column;
             }
-        }
-        
-        /* 로딩 상태 */
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
     </style>
 </head>
@@ -212,7 +285,6 @@
         <!-- 헤더 -->
         <div class="header">
             <h1>게시글 작성하기</h1>
-            </a>
         </div>
         
         <!-- 폼 -->
@@ -227,22 +299,22 @@
                 <!-- 작성자 (hidden) -->
                 <input type="hidden" name="author" id="post-author-input" value="">
                 
-                <!-- 내용 -->
+                <!-- 블록 추가 버튼 -->
                 <div class="form-group">
-                    <label for="contentInput">내용</label>
-                    <textarea id="contentInput" name="content" placeholder="내용을 입력하세요" required></textarea>
-                </div>
-                
-                <!-- 파일 업로드 -->
-                <div class="form-group">
-                    <label>첨부파일</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" name="media" accept="image/*,video/*" id="fileInput" multiple>
-                        <label for="fileInput" class="file-upload-label" id="fileLabel">
-                            <span id="fileLabelText">파일을 선택하거나 드래그하세요</span>
-                        </label>
+                    <label>형식 추가</label>
+                    <div class="add-block-buttons">
+                        <button type="button" class="add-block-btn" id="addTextBtn">텍스트 추가</button>
+                        <button type="button" class="add-block-btn" id="addImageBtn">이미지 추가</button>
+                        <button type="button" class="add-block-btn" id="addVideoBtn">비디오 추가</button>
                     </div>
                 </div>
+                
+                <!-- 콘텐츠 블록 컨테이너 -->
+                <div id="contentBlocksContainer"></div>
+                
+                <!-- 숨겨진 파일 입력 -->
+                <input type="file" id="imageInput" accept="image/*" multiple>
+                <input type="file" id="videoInput" accept="video/*" multiple>
                 
                 <!-- 버튼 그룹 -->
                 <div class="button-group">
@@ -259,10 +331,17 @@
         const postForm = document.getElementById('postForm');
         const cancelBtn = document.getElementById('cancelBtn');
         const submitBtn = document.getElementById('submitBtn');
-        const fileInput = document.getElementById('fileInput');
-        const fileLabel = document.getElementById('fileLabel');
-        const fileLabelText = document.getElementById('fileLabelText');
         const authorInput = document.getElementById('post-author-input');
+        const contentBlocksContainer = document.getElementById('contentBlocksContainer');
+        
+        const addTextBtn = document.getElementById('addTextBtn');
+        const addImageBtn = document.getElementById('addImageBtn');
+        const addVideoBtn = document.getElementById('addVideoBtn');
+        const imageInput = document.getElementById('imageInput');
+        const videoInput = document.getElementById('videoInput');
+        
+        let blockIdCounter = 0;
+        const contentBlocks = [];
         
         // 페이지 로드 시 작성자 설정
         function setAuthorField() {
@@ -273,51 +352,163 @@
         }
         setAuthorField();
         
-        // 파일 선택 시 라벨 업데이트
-        function updateFileLabel() {
-            const fileCount = fileInput.files.length;
+        // 텍스트 블록 추가
+        function addTextBlock() {
+            const blockId = blockIdCounter++;
+            const blockData = { id: blockId, type: 'text', content: '' };
+            contentBlocks.push(blockData);
             
-            if (fileCount === 0) {
-                fileLabelText.textContent = '파일을 선택하거나 드래그하세요';
-                fileLabel.classList.remove('has-files');
-            } else if (fileCount === 1) {
-                const fileName = fileInput.files[0].name;
-                fileLabelText.textContent = fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName;
-                fileLabel.classList.add('has-files');
-            } else {
-                fileLabelText.textContent = `${fileCount}개의 파일이 선택됨`;
-                fileLabel.classList.add('has-files');
-            }
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'content-block';
+            blockDiv.dataset.blockId = blockId;
+            blockDiv.innerHTML = `
+                <div class="block-header">
+                    <span class="block-type">텍스트</span>
+                    <div class="block-actions">
+                        <button type="button" class="block-btn move-up" title="위로">↑</button>
+                        <button type="button" class="block-btn move-down" title="아래로">↓</button>
+                        <button type="button" class="block-btn delete" title="삭제">×</button>
+                    </div>
+                </div>
+                <textarea placeholder="내용을 입력하세요"></textarea>
+            `;
+            
+            contentBlocksContainer.appendChild(blockDiv);
+            
+            const textarea = blockDiv.querySelector('textarea');
+            textarea.addEventListener('input', () => {
+                blockData.content = textarea.value;
+            });
+            
+            attachBlockEvents(blockDiv);
         }
         
-        fileInput.addEventListener('change', updateFileLabel);
-        
-        // 드래그 앤 드롭
-        fileLabel.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            fileLabel.style.borderColor = '#4a5568';
-            fileLabel.style.background = '#e7f5ff';
-        });
-        
-        fileLabel.addEventListener('dragleave', () => {
-            fileLabel.style.borderColor = '#cbd5e0';
-            fileLabel.style.background = '#f8f9fa';
-        });
-        
-        fileLabel.addEventListener('drop', (e) => {
-            e.preventDefault();
-            fileLabel.style.borderColor = '#cbd5e0';
-            fileLabel.style.background = '#f8f9fa';
+        // 이미지 블록 추가
+        function addImageBlock(file) {
+            const blockId = blockIdCounter++;
+            const blockData = { id: blockId, type: 'image', file: file };
+            contentBlocks.push(blockData);
             
-            fileInput.files = e.dataTransfer.files;
-            updateFileLabel();
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'content-block media-block';
+            blockDiv.dataset.blockId = blockId;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                blockDiv.innerHTML = `
+                    <div class="block-header">
+                        <span class="block-type">이미지: ${file.name}</span>
+                        <div class="block-actions">
+                            <button type="button" class="block-btn move-up" title="위로">↑</button>
+                            <button type="button" class="block-btn move-down" title="아래로">↓</button>
+                            <button type="button" class="block-btn delete" title="삭제">×</button>
+                        </div>
+                    </div>
+                    <img src="${e.target.result}" alt="미리보기">
+                `;
+                attachBlockEvents(blockDiv);
+            };
+            reader.readAsDataURL(file);
+            
+            contentBlocksContainer.appendChild(blockDiv);
+        }
+        
+        // 비디오 블록 추가
+        function addVideoBlock(file) {
+            const blockId = blockIdCounter++;
+            const blockData = { id: blockId, type: 'video', file: file };
+            contentBlocks.push(blockData);
+            
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'content-block media-block';
+            blockDiv.dataset.blockId = blockId;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                blockDiv.innerHTML = `
+                    <div class="block-header">
+                        <span class="block-type">비디오: ${file.name}</span>
+                        <div class="block-actions">
+                            <button type="button" class="block-btn move-up" title="위로">↑</button>
+                            <button type="button" class="block-btn move-down" title="아래로">↓</button>
+                            <button type="button" class="block-btn delete" title="삭제">×</button>
+                        </div>
+                    </div>
+                    <video src="${e.target.result}" controls></video>
+                `;
+                attachBlockEvents(blockDiv);
+            };
+            reader.readAsDataURL(file);
+            
+            contentBlocksContainer.appendChild(blockDiv);
+        }
+        
+        // 블록 이벤트 연결
+        function attachBlockEvents(blockDiv) {
+            const blockId = parseInt(blockDiv.dataset.blockId);
+            
+            blockDiv.querySelector('.delete').addEventListener('click', () => {
+                const index = contentBlocks.findIndex(b => b.id === blockId);
+                if (index > -1) contentBlocks.splice(index, 1);
+                blockDiv.remove();
+            });
+            
+            blockDiv.querySelector('.move-up').addEventListener('click', () => {
+                if (blockDiv.previousElementSibling) {
+                    contentBlocksContainer.insertBefore(blockDiv, blockDiv.previousElementSibling);
+                    reorderContentBlocks();
+                }
+            });
+            
+            blockDiv.querySelector('.move-down').addEventListener('click', () => {
+                if (blockDiv.nextElementSibling) {
+                    contentBlocksContainer.insertBefore(blockDiv.nextElementSibling, blockDiv);
+                    reorderContentBlocks();
+                }
+            });
+        }
+        
+        // 블록 순서 재정렬
+        function reorderContentBlocks() {
+            const orderedBlocks = [];
+            const blockDivs = contentBlocksContainer.querySelectorAll('.content-block');
+            blockDivs.forEach(div => {
+                const blockId = parseInt(div.dataset.blockId);
+                const block = contentBlocks.find(b => b.id === blockId);
+                if (block) orderedBlocks.push(block);
+            });
+            contentBlocks.length = 0;
+            contentBlocks.push(...orderedBlocks);
+        }
+        
+        // 버튼 이벤트
+        addTextBtn.addEventListener('click', addTextBlock);
+        
+        addImageBtn.addEventListener('click', () => {
+            imageInput.click();
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            Array.from(e.target.files).forEach(file => {
+                addImageBlock(file);
+            });
+            imageInput.value = '';
+        });
+        
+        addVideoBtn.addEventListener('click', () => {
+            videoInput.click();
+        });
+        
+        videoInput.addEventListener('change', (e) => {
+            Array.from(e.target.files).forEach(file => {
+                addVideoBlock(file);
+            });
+            videoInput.value = '';
         });
         
         // 취소 버튼
         cancelBtn.addEventListener('click', () => {
-            if (showToast('작성을 취소했습니다')) {
-                window.location.href = 'index.html';
-            }
+            window.location.href = 'index.html';
         });
         
         // 폼 제출
@@ -333,6 +524,11 @@
                 return;
             }
             
+            if (contentBlocks.length === 0) {
+                showToast('최소 하나의 콘텐츠 블록을 추가해주세요');
+                return;
+            }
+            
             // 버튼 비활성화
             submitBtn.disabled = true;
             submitBtn.textContent = '등록 중...';
@@ -343,22 +539,19 @@
                 formData.append('title', postForm.title.value.trim());
                 formData.append('author', authorInput.value);
                 
-                // 컨텐츠 블록 생성
-                const contentBlocks = [];
+                // 콘텐츠 블록 데이터 준비
+                const blockDataArray = [];
                 
-                const contentText = postForm.content.value.trim();
-                if (contentText) {
-                    contentBlocks.push({ type: 'text', content: contentText });
-                }
-                
-                // 파일 처리
-                Array.from(fileInput.files).forEach(file => {
-                    const type = file.type.startsWith('image/') ? 'image' : 'video';
-                    contentBlocks.push({ type });
-                    formData.append('media', file);
+                contentBlocks.forEach(block => {
+                    if (block.type === 'text') {
+                        blockDataArray.push({ type: 'text', content: block.content });
+                    } else if (block.type === 'image' || block.type === 'video') {
+                        blockDataArray.push({ type: block.type });
+                        formData.append('media', block.file);
+                    }
                 });
                 
-                formData.append('contentBlocks', JSON.stringify(contentBlocks));
+                formData.append('contentBlocks', JSON.stringify(blockDataArray));
                 
                 // API 호출
                 const res = await fetch('/api/posts', {
