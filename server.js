@@ -248,16 +248,13 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// 에러 핸들링 미들웨어
-app.use((err, req, res, next) => {
-    console.error('서버 오류:', err);
-    res.status(500).json({ error: 'Internal server error', details: process.env.NODE_ENV === 'development' ? err.message : undefined });
-});
-
-// 404 핸들러
-app.use((req, res) => {
-    res.status(404).json({ error: 'Route not found' });
-});
+// post.content 대신 post.contentBlocks 사용
+// 텍스트 블록 길이 합산
+const length = post.contentBlocks
+    ? post.contentBlocks
+          .filter(block => block.type === 'text')
+          .reduce((sum, block) => sum + (block.content?.length || 0), 0)
+    : 0;
 
 // 서버 시작
 app.listen(PORT, () => {
