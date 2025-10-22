@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
         cb(null, `${name}-${uniqueSuffix}${ext}`);
     }
 });
+
 const upload = multer({ 
     storage,
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB 제한
@@ -105,7 +106,6 @@ app.post('/api/posts', cpUpload, async (req, res) => {
         const { title, author, contentBlocks } = req.body;
         if (!title || !title.trim()) return res.status(400).json({ error: 'Title required' });
 
-        // contentBlocks 파싱
         let blocks = [];
         try {
             blocks = JSON.parse(contentBlocks || '[]');
@@ -114,18 +114,15 @@ app.post('/api/posts', cpUpload, async (req, res) => {
         }
         if (!Array.isArray(blocks)) return res.status(400).json({ error: 'contentBlocks must be an array' });
 
-        // 업로드된 파일들을 순서대로 블록에 매칭
+        // 파일 순서대로 블록 매칭
         if (req.files && req.files.length > 0) {
             let fileIndex = 0;
-            for (let i = 0; i < blocks.length; i++) {
-                const block = blocks[i];
-                if ((block.type === 'image' || block.type === 'video') && !block.url) {
-                    if (fileIndex < req.files.length) {
-                        const file = req.files[fileIndex];
-                        block.url = `/uploads/${file.filename}`;
-                        block.filename = file.originalname;
-                        fileIndex++;
-                    }
+            for (let block of blocks) {
+                if ((block.type === 'image' || block.type === 'video') && !block.url && fileIndex < req.files.length) {
+                    const file = req.files[fileIndex];
+                    block.url = `/uploads/${file.filename}`;
+                    block.filename = file.originalname;
+                    fileIndex++;
                 }
             }
         }
@@ -172,15 +169,12 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
 
             if (req.files && req.files.length > 0) {
                 let fileIndex = 0;
-                for (let i = 0; i < blocks.length; i++) {
-                    const block = blocks[i];
-                    if ((block.type === 'image' || block.type === 'video') && !block.url) {
-                        if (fileIndex < req.files.length) {
-                            const file = req.files[fileIndex];
-                            block.url = `/uploads/${file.filename}`;
-                            block.filename = file.originalname;
-                            fileIndex++;
-                        }
+                for (let block of blocks) {
+                    if ((block.type === 'image' || block.type === 'video') && !block.url && fileIndex < req.files.length) {
+                        const file = req.files[fileIndex];
+                        block.url = `/uploads/${file.filename}`;
+                        block.filename = file.originalname;
+                        fileIndex++;
                     }
                 }
             }
@@ -248,13 +242,8 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// post.content 대신 post.contentBlocks 사용
-// 텍스트 블록 길이 합산
-const length = post.contentBlocks
-    ? post.contentBlocks
-          .filter(block => block.type === 'text')
-          .reduce((sum, block) => sum + (block.content?.length || 0), 0)
-    : 0;
+// 404 핸들러
+app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // 서버 시작
 app.listen(PORT, () => {
