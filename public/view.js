@@ -39,13 +39,16 @@ async function fetchPost() {
 
         let formatted = '';
 
-        // DB에서 받은 시간을 그대로 Date 객체로 변환
-        // PostgreSQL이 이미 UTC로 저장하고 있으므로 그냥 파싱
+        // DB에 이미 한국 시간으로 저장되어 있으므로
+        // 시간대 변환 없이 로컬 시간으로 파싱
         if (dbTime) {
-            const date = new Date(dbTime);
+            // TIMESTAMP를 문자열로 받았으므로 그대로 파싱 (시간대 변환 없음)
+            const dateStr = dbTime.replace(' ', 'T'); // ISO 형식으로 변환
+            const date = new Date(dateStr);
+            
+            // 시간대 변환 없이 그대로 표시
             formatted = date.toLocaleString('ko-KR', { 
-                hour12: false, 
-                timeZone: 'Asia/Seoul',
+                hour12: false,
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
