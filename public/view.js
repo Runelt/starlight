@@ -34,16 +34,9 @@ async function fetchPost() {
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         post = await res.json();
 
-        // meta: 작성자 + 작성일 (한국 시간)
+        // meta: 작성자 + 작성일 그대로 표시
         const author = post.author || '익명';
-        let createdDate = new Date(post.createdAt);
-
-            // UTC 문자열이면 한국 시간 적용
-            if (!isNaN(createdDate)) {
-                postMeta.textContent = `${author} | ${createdDate.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
-            } else {
-                postMeta.textContent = `${author} | 작성일 정보 없음`;
-            }
+        postMeta.textContent = `${author} | ${post.createdAt}`;
 
         // contentBlocks 렌더링
         renderContentBlocks();
@@ -151,4 +144,3 @@ deleteBtn.addEventListener('click', async () => {
 });
 
 fetchPost();
-
