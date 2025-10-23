@@ -97,3 +97,6 @@ textarea {
     display: flex;
 }
 
+#post-content {
+    white-space: pre-wrap;
+}
