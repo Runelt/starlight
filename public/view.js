@@ -3,10 +3,13 @@ import { showToast } from './alert.js';
 const postMeta = document.getElementById('post-meta');
 const postTitle = document.getElementById('post-title');
 const postContent = document.getElementById('post-content');
+const postVideo = document.getElementById('post-video');
+
 const commentsListEl = document.getElementById('comments-list');
 const commentFormWrap = document.getElementById('comment-form-wrap');
 const commentInput = document.getElementById('comment-input');
 const commentSubmitBtn = document.getElementById('comment-submit');
+
 const deleteBtn = document.getElementById('deleteBtn');
 const backBtn = document.getElementById('backBtn');
 
@@ -15,43 +18,49 @@ const postId = params.get('id');
 
 backBtn.addEventListener('click', () => window.history.back());
 
+// 현재 사용자 (로컬 시뮬레이션용)
 const currentUser = localStorage.getItem('currentUser');
 const currentAdmin = localStorage.getItem('currentAdmin');
 
+// 게시글 로드
 let post = null;
-
 async function fetchPost() {
     if (!postId) {
         showToast('게시글 ID가 없습니다.');
         return;
     }
-
     try {
         const res = await fetch(`/api/posts/${postId}`);
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         post = await res.json();
 
+        // meta: 작성자 + 작성일 (한국 시간)
         const author = post.author || '익명';
-        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString()}`;
+        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
         postTitle.textContent = post.title;
 
-        renderPostContent(post.contentBlocks);
+        // contentBlocks 렌더링
+        renderContentBlocks();
 
+        // 댓글 렌더링
         renderComments();
 
+        // 댓글 작성 폼 표시(로그인한 사용자만)
         commentFormWrap.style.display = (currentUser || currentAdmin) ? 'block' : 'none';
 
-        deleteBtn.style.display =
-            ((currentUser && currentUser === post.author) || currentAdmin) ? 'inline-block' : 'none';
+        // 삭제 버튼 표시: 작성자 또는 admin만
+        deleteBtn.style.display = ((currentUser && currentUser === post.author) || currentAdmin) ? 'inline-block' : 'none';
     } catch (err) {
         showToast(err.message);
     }
 }
 
-function renderPostContent(blocks) {
-    postContent.innerHTML = '';
-    if (!Array.isArray(blocks) || blocks.length === 0) {
-        postContent.innerHTML = '<p>내용이 없습니다.</p>';
+function renderContentBlocks() {
+    postContent.innerHTML = ''; // 초기화
+    const blocks = Array.isArray(post.contentBlocks) ? post.contentBlocks : [];
+
+    if (blocks.length === 0) {
+        postContent.textContent = '내용이 없습니다.';
         return;
     }
 
@@ -75,8 +84,7 @@ function renderPostContent(blocks) {
                 el.style.maxWidth = '100%';
                 break;
             default:
-                el = document.createElement('p');
-                el.textContent = '[알 수 없는 블록]';
+                return; // 알 수 없는 타입은 무시
         }
         postContent.appendChild(el);
     });
@@ -89,7 +97,6 @@ function renderComments() {
         commentsListEl.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
         return;
     }
-
     comments.forEach(c => {
         const el = document.createElement('div');
         el.className = 'comment';
@@ -98,6 +105,7 @@ function renderComments() {
     });
 }
 
+// 댓글 작성
 commentSubmitBtn.addEventListener('click', async () => {
     const text = commentInput.value.trim();
     if (!text) return showToast('댓글 내용을 입력하세요');
@@ -105,6 +113,7 @@ commentSubmitBtn.addEventListener('click', async () => {
 
     const authorName = currentUser || currentAdmin || '익명';
     const newComment = { author: authorName, text };
+
     const newComments = Array.isArray(post.comments) ? [...post.comments, newComment] : [newComment];
 
     try {
@@ -122,8 +131,10 @@ commentSubmitBtn.addEventListener('click', async () => {
     }
 });
 
+// 게시글 삭제
 deleteBtn.addEventListener('click', async () => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const confirmed = confirm('정말 삭제하시겠습니까?');
+    if (!confirmed) return;
     try {
         const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('삭제 실패');
