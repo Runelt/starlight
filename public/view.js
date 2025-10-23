@@ -36,7 +36,8 @@ async function fetchPost() {
 
         // meta: 작성자 + 작성일 (한국 시간)
         const author = post.author || '익명';
-        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
+        const createdDate = new Date(post.createdAt + 'Z'); // UTC로 명시
+        postMeta.textContent = `${author} | ${createdDate.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
         postTitle.textContent = post.title;
 
         // contentBlocks 렌더링
