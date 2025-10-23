@@ -113,11 +113,6 @@ app.get('/api/posts/:id', async (req, res) => {
 // POST /api/posts
 app.post('/api/posts', cpUpload, async (req, res) => {
     try {
-        // ⚡ content → contentBlocks 호환 처리
-        if (!req.body.contentBlocks && req.body.content) {
-            req.body.contentBlocks = [{ type: 'text', content: req.body.content }];
-        }
-
         const title = (req.body.title || '').trim();
         const author = (req.body.author || '익명').trim();
         if (!title) return res.status(400).json({ error: 'Title required' });
@@ -157,11 +152,6 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
     if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id' });
 
     try {
-        // ⚡ content → contentBlocks 호환 처리
-        if (!req.body.contentBlocks && req.body.content) {
-            req.body.contentBlocks = [{ type: 'text', content: req.body.content }];
-        }
-
         const fields = [];
         const values = [];
         let idx = 1;
@@ -236,9 +226,6 @@ app.delete('/api/posts/:id', async (req, res) => {
         res.status(500).json({ error: 'DB delete error', details: err.message });
     }
 });
-
-// 404
-app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // 서버 시작
 app.listen(PORT, () => {
