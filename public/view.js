@@ -34,21 +34,18 @@ async function fetchPost() {
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         post = await res.json();
 
-        // meta: 작성자 + 작성일 그대로 표시
         const author = post.author || '익명';
-        const dbTime = post.createdAt; // DB에서 가져온 문자열
-        let formatted = dbTime;
+        const dbTime = post.createdAt;
 
-        // 유효한 날짜인지 확인 후 한국 시간대로 변환
+        let formatted = '';
+
+        // UTC 기준으로 파싱 후 한국 시간으로 변환
         if (dbTime) {
-            const dateObj = new Date(dbTime); // 브라우저에서 해석
-            if (!isNaN(dateObj)) {
-                formatted = dateObj.toLocaleString('ko-KR', { hour12: false });
-            }
+            const utcDate = new Date(dbTime + 'Z'); // 'Z'를 붙여 UTC로 인식
+            formatted = utcDate.toLocaleString('ko-KR', { hour12: false, timeZone: 'Asia/Seoul' });
         }
 
         postMeta.textContent = `${author} | ${formatted}`;
-
 
         // contentBlocks 렌더링
         renderContentBlocks();
