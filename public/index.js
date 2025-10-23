@@ -51,7 +51,6 @@ function renderPage(page) {
 
         div.innerHTML = `
             <h3><a href="view.html?id=${post.id}">${post.title}</a></h3>
-            <p>${previewText}</p>
         `;
         postsEl.appendChild(div);
     });
@@ -118,3 +117,4 @@ writeBtn.addEventListener('click', () => {
 // 초기 실행
 checkLoginStatus();
 fetchPosts();
+
