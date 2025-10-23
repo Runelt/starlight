@@ -34,16 +34,9 @@ async function fetchPost() {
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         post = await res.json();
 
-        // 작성자 + 작성일 (한국 시간)
+        // meta: 작성자 + 작성일 (한국 시간)
         const author = post.author || '익명';
-        let createdDate;
-        if (post.createdAt) {
-            // "YYYY-MM-DD HH:MM:SS" 형태 → "YYYY-MM-DDTHH:MM:SS" 변환
-            createdDate = new Date(post.createdAt.replace(' ', 'T'));
-        } else {
-            createdDate = new Date();
-        }
-        postMeta.textContent = `${author} | ${createdDate.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
+        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
         postTitle.textContent = post.title;
 
         // contentBlocks 렌더링
@@ -120,7 +113,6 @@ commentSubmitBtn.addEventListener('click', async () => {
 
     const authorName = currentUser || currentAdmin || '익명';
     const newComment = { author: authorName, text };
-
     const newComments = Array.isArray(post.comments) ? [...post.comments, newComment] : [newComment];
 
     try {
