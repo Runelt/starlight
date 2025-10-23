@@ -30,6 +30,7 @@ const storage = multer.diskStorage({
         cb(null, `${name}-${unique}${ext}`);
     }
 });
+
 const upload = multer({
     storage,
     limits: { fileSize: Number(process.env.MAX_FILE_SIZE || 50 * 1024 * 1024), files: 20 }
@@ -73,11 +74,9 @@ function parseMaybeJSON(input, fallback = null) {
 async function safeUnlink(relPath) {
     try {
         const resolved = path.resolve(__dirname, relPath);
-        if (!resolved.startsWith(uploadDir)) return; // safety
+        if (!resolved.startsWith(uploadDir)) return;
         await fsp.unlink(resolved).catch(() => {});
-    } catch (e) {
-        // ignore
-    }
+    } catch (e) {}
 }
 
 // ---------------------- REST 엔드포인트 ----------------------
@@ -85,7 +84,8 @@ async function safeUnlink(relPath) {
 // GET /api/posts
 app.get('/api/posts', async (req, res) => {
     try {
-        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" FROM posts ORDER BY id DESC`;
+        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" 
+                   FROM posts ORDER BY id DESC`;
         const result = await pool.query(q);
         res.json(result.rows);
     } catch (err) {
@@ -99,7 +99,8 @@ app.get('/api/posts/:id', async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id' });
     try {
-        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" FROM posts WHERE id = $1 LIMIT 1`;
+        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" 
+                   FROM posts WHERE id = $1 LIMIT 1`;
         const { rows } = await pool.query(q, [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Post not found' });
         res.json(rows[0]);
@@ -117,9 +118,8 @@ app.post('/api/posts', cpUpload, async (req, res) => {
         if (!title) return res.status(400).json({ error: 'Title required' });
 
         let blocks = parseMaybeJSON(req.body.contentBlocks, []);
-        if (!Array.isArray(blocks)) blocks = [];
+        if (!Array.isArray(blocks)) return res.status(400).json({ error: 'contentBlocks must be an array' });
 
-        // 파일과 블록 매칭
         if (req.files && req.files.length > 0) {
             let i = 0;
             for (const block of blocks) {
@@ -159,8 +159,8 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
         if (req.body.author !== undefined) { fields.push(`author = $${idx++}`); values.push(String(req.body.author)); }
 
         if (req.body.contentBlocks !== undefined) {
-            let blocks = parseMaybeJSON(req.body.contentBlocks, []);
-            if (!Array.isArray(blocks)) blocks = [];
+            let blocks = parseMaybeJSON(req.body.contentBlocks, null);
+            if (!Array.isArray(blocks)) return res.status(400).json({ error: 'Invalid contentBlocks format' });
 
             if (req.files && req.files.length > 0) {
                 let i = 0;
@@ -178,8 +178,8 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
         }
 
         if (req.body.comments !== undefined) {
-            let commentsVal = parseMaybeJSON(req.body.comments, []);
-            if (!Array.isArray(commentsVal)) commentsVal = [];
+            let commentsVal = parseMaybeJSON(req.body.comments, null);
+            if (commentsVal === null) return res.status(400).json({ error: 'Invalid comments format' });
             fields.push(`comments = $${idx++}`);
             values.push(JSON.stringify(commentsVal));
         }
@@ -211,7 +211,7 @@ app.delete('/api/posts/:id', async (req, res) => {
         const { rows } = await pool.query(q, [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Post not found' });
 
-        const blocks = parseMaybeJSON(rows[0].content_blocks, []);
+        const blocks = rows[0].content_blocks || [];
         for (const block of blocks) {
             if (block && block.url) {
                 const rel = block.url.startsWith('/') ? block.url.slice(1) : block.url;
