@@ -39,23 +39,10 @@ async function fetchPost() {
 
         let formatted = '';
 
-        // DB에 이미 한국 시간으로 저장되어 있으므로
-        // 시간대 변환 없이 로컬 시간으로 파싱
         if (dbTime) {
-            // TIMESTAMP를 문자열로 받았으므로 그대로 파싱 (시간대 변환 없음)
-            const dateStr = dbTime.replace(' ', 'T'); // ISO 형식으로 변환
-            const date = new Date(dateStr);
-            
-            // 시간대 변환 없이 그대로 표시
-            formatted = date.toLocaleString('ko-KR', { 
-                hour12: false,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
+            // 밀리초 제외하고 YYYY-MM-DD HH:MM:SS 형태로 표시
+            // DB에 이미 한국 시간으로 저장되어 있으므로 변환 없이 그대로 사용
+            formatted = dbTime.split('.')[0].replace('T', ' '); 
         }
 
         postMeta.textContent = `${author} | ${formatted}`;
