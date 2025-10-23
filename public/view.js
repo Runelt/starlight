@@ -36,8 +36,14 @@ async function fetchPost() {
 
         // meta: 작성자 + 작성일 (한국 시간)
         const author = post.author || '익명';
-        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
-        postTitle.textContent = post.title;
+        let createdDate = new Date(post.createdAt);
+
+            // UTC 문자열이면 한국 시간 적용
+            if (!isNaN(createdDate)) {
+                postMeta.textContent = `${author} | ${createdDate.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`;
+            } else {
+                postMeta.textContent = `${author} | 작성일 정보 없음`;
+            }
 
         // contentBlocks 렌더링
         renderContentBlocks();
@@ -145,3 +151,4 @@ deleteBtn.addEventListener('click', async () => {
 });
 
 fetchPost();
+
