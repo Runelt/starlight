@@ -36,9 +36,19 @@ async function fetchPost() {
 
         // meta: 작성자 + 작성일 그대로 표시
         const author = post.author || '익명';
-        const dbTime = post.createdAt; 
-        const dateObj = new Date(dbTime + 'Z'); // UTC로 강제 해석
-        const formatted = dateObj.toLocaleString('ko-KR', { hour12: false, timeZone: 'Asia/Seoul' });
+        const dbTime = post.createdAt; // DB에서 가져온 문자열
+        let formatted = dbTime;
+
+        // 유효한 날짜인지 확인 후 한국 시간대로 변환
+        if (dbTime) {
+            const dateObj = new Date(dbTime); // 브라우저에서 해석
+            if (!isNaN(dateObj)) {
+                formatted = dateObj.toLocaleString('ko-KR', { hour12: false });
+            }
+        }
+
+        postMeta.textContent = `${author} | ${formatted}`;
+
 
         // contentBlocks 렌더링
         renderContentBlocks();
