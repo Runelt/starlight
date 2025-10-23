@@ -13,8 +13,13 @@
         <div id="post-container">
             <p id="post-meta"></p>
             <h2 id="post-title"></h2>
-            <p id="post-content"></p>
-            <video id="post-video" controls style="display:none;"></video>
+
+            <!-- 내용 블록 렌더링 영역 -->
+            <div id="post-content"></div>
+
+            <!-- 미디어(이미지/비디오) 렌더링 영역 -->
+            <div id="post-media"></div>
+
             <div id="post-actions">
                 <button id="backBtn">뒤로가기</button>
                 <button id="deleteBtn" style="display:none;">삭제</button>
@@ -22,16 +27,18 @@
         </div>
 
         <div id="comments-area">
-            <!-- 댓글 섹션 -->
-                <div id="comments-list"></div>
-                <!-- 로그인한 사용자만 보이게 -->
-                <div id="comment-form-wrap" style="display:none;">
-                    <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
-                    <button id="comment-submit">올리기</button>
-                </div>
+            <div id="comments-list"></div>
+
+            <!-- 로그인한 사용자만 보이게 -->
+            <div id="comment-form-wrap" style="display:none;">
+                <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
+                <button id="comment-submit">올리기</button>
+            </div>
         </div>
     </main>
+
     <div id="custom-toast-container"></div>
+
     <script type="module" src="view.js"></script>
     <script src="alert.js"></script>
 </body>
