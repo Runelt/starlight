@@ -104,3 +104,7 @@ button:hover {
 .pagination button:hover:not(.active) {
     background-color: #e9ecef;
 }
+
+#posts {
+    white-space: pre-wrap;
+}
