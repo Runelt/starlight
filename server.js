@@ -43,7 +43,7 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static(uploadDir));
 
-// DB 테이블 생성
+// DB 테이블 생성 (한국 시간 기준은 서버에서 처리)
 (async () => {
     try {
         await pool.query(`
@@ -76,7 +76,14 @@ async function safeUnlink(relPath) {
         const resolved = path.resolve(__dirname, relPath);
         if (!resolved.startsWith(uploadDir)) return;
         await fsp.unlink(resolved).catch(() => {});
-    } catch (e) {}
+    } catch (e) {
+        // ignore
+    }
+}
+
+// 유틸: 한국 시간 문자열 생성
+function getKSTNow() {
+    return new Date(new Date().getTime() + 9 * 60 * 60 * 1000); // UTC+9
 }
 
 // ---------------------- REST 엔드포인트 ----------------------
@@ -84,8 +91,7 @@ async function safeUnlink(relPath) {
 // GET /api/posts
 app.get('/api/posts', async (req, res) => {
     try {
-        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" 
-                   FROM posts ORDER BY id DESC`;
+        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" FROM posts ORDER BY id DESC`;
         const result = await pool.query(q);
         res.json(result.rows);
     } catch (err) {
@@ -99,8 +105,7 @@ app.get('/api/posts/:id', async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id' });
     try {
-        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" 
-                   FROM posts WHERE id = $1 LIMIT 1`;
+        const q = `SELECT id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt" FROM posts WHERE id = $1 LIMIT 1`;
         const { rows } = await pool.query(q, [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Post not found' });
         res.json(rows[0]);
@@ -132,10 +137,11 @@ app.post('/api/posts', cpUpload, async (req, res) => {
         }
         blocks = blocks.map(b => (b.type === 'text' && !b.content ? { ...b, content: '' } : b));
 
-        const q = `INSERT INTO posts (title, author, content_blocks) 
-                   VALUES ($1, $2, $3) 
+        const nowKST = getKSTNow();
+        const q = `INSERT INTO posts (title, author, content_blocks, created_at, updated_at) 
+                   VALUES ($1, $2, $3, $4, $5) 
                    RETURNING id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt"`;
-        const values = [title, author, JSON.stringify(blocks)];
+        const values = [title, author, JSON.stringify(blocks), nowKST, nowKST];
         const { rows } = await pool.query(q, values);
 
         res.status(201).json(rows[0]);
@@ -185,7 +191,9 @@ app.put('/api/posts/:id', cpUpload, async (req, res) => {
         }
 
         if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
-        fields.push(`updated_at = NOW()`);
+
+        fields.push(`updated_at = $${idx++}`);
+        values.push(getKSTNow());
 
         const q = `UPDATE posts SET ${fields.join(', ')} WHERE id = $${idx} 
                    RETURNING id, title, author, content_blocks AS "contentBlocks", comments, created_at AS "createdAt", updated_at AS "updatedAt"`;
