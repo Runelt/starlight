@@ -2,8 +2,7 @@ import { showToast } from './alert.js';
 
 const postMeta = document.getElementById('post-meta');
 const postTitle = document.getElementById('post-title');
-const postContent = document.getElementById('post-content');
-const postMedia = document.getElementById('post-media'); // 이미지/비디오 렌더링용 div
+const postContentEl = document.getElementById('post-content');
 
 const commentsListEl = document.getElementById('comments-list');
 const commentFormWrap = document.getElementById('comment-form-wrap');
@@ -29,7 +28,6 @@ async function fetchPost() {
         showToast('게시글 ID가 없습니다.');
         return;
     }
-
     try {
         const res = await fetch(`/api/posts/${postId}`);
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
@@ -37,14 +35,29 @@ async function fetchPost() {
 
         // meta: 작성자 + 작성일
         const author = post.author || '익명';
-        const created = post.createdAt ? new Date(post.createdAt).toLocaleString() : '';
-        postMeta.textContent = `${author} | ${created}`;
+        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString()}`;
         postTitle.textContent = post.title;
 
-        // content_blocks 렌더링
-        renderContentBlocks();
+        // content_blocks 순서대로 렌더링
+        postContentEl.innerHTML = '';
+        const blocks = Array.isArray(post.contentBlocks) ? post.contentBlocks : [];
+        blocks.forEach(block => {
+            let el;
+            if (block.type === 'text') {
+                el = document.createElement('p');
+                el.textContent = block.content || '';
+            } else if (block.type === 'image') {
+                el = document.createElement('img');
+                el.src = block.url;
+                el.alt = block.filename || '';
+            } else if (block.type === 'video') {
+                el = document.createElement('video');
+                el.src = block.url;
+                el.controls = true;
+            }
+            if (el) postContentEl.appendChild(el);
+        });
 
-        // 댓글 렌더링
         renderComments();
 
         // 댓글 작성 폼 표시
@@ -57,39 +70,6 @@ async function fetchPost() {
     }
 }
 
-// content_blocks 렌더링
-function renderContentBlocks() {
-    postContent.innerHTML = '';
-    postMedia.innerHTML = '';
-
-    if (!Array.isArray(post.contentBlocks) || post.contentBlocks.length === 0) {
-        postContent.textContent = '내용이 없습니다.';
-        return;
-    }
-
-    post.contentBlocks.forEach(block => {
-        if (!block || !block.type) return;
-
-        if (block.type === 'text') {
-            const p = document.createElement('p');
-            p.textContent = block.content || '';
-            postContent.appendChild(p);
-        } else if (block.type === 'image') {
-            const img = document.createElement('img');
-            img.src = block.url;
-            img.alt = block.filename || '';
-            img.style.maxWidth = '100%';
-            postMedia.appendChild(img);
-        } else if (block.type === 'video') {
-            const video = document.createElement('video');
-            video.src = block.url;
-            video.controls = true;
-            video.style.maxWidth = '100%';
-            postMedia.appendChild(video);
-        }
-    });
-}
-
 // 댓글 렌더링
 function renderComments() {
     commentsListEl.innerHTML = '';
@@ -98,7 +78,6 @@ function renderComments() {
         commentsListEl.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
         return;
     }
-
     comments.forEach(c => {
         const el = document.createElement('div');
         el.className = 'comment';
@@ -115,6 +94,7 @@ commentSubmitBtn.addEventListener('click', async () => {
 
     const authorName = currentUser || currentAdmin || '익명';
     const newComment = { author: authorName, text };
+
     const newComments = Array.isArray(post.comments) ? [...post.comments, newComment] : [newComment];
 
     try {
@@ -140,9 +120,7 @@ deleteBtn.addEventListener('click', async () => {
         const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('삭제 실패');
         showToast('게시글이 삭제되었습니다!');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        setTimeout(() => window.location.href = 'index.html', 1000);
     } catch (err) {
         showToast(err.message);
     }
