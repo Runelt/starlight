@@ -37,9 +37,21 @@ function renderPage(page) {
     pagePosts.forEach(post => {
         const div = document.createElement('div');
         div.className = 'post';
+
+        // contentBlocks에서 첫 번째 텍스트 블록 찾기
+        let previewText = '';
+        if (Array.isArray(post.contentBlocks)) {
+            const textBlock = post.contentBlocks.find(b => b.type === 'text' && b.content);
+            if (textBlock) {
+                previewText = textBlock.content.length > 100 
+                    ? textBlock.content.substring(0, 100) + '...' 
+                    : textBlock.content;
+            }
+        }
+
         div.innerHTML = `
             <h3><a href="view.html?id=${post.id}">${post.title}</a></h3>
-            <p>${post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content}</p>
+            <p>${previewText}</p>
         `;
         postsEl.appendChild(div);
     });
