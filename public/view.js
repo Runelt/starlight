@@ -36,7 +36,9 @@ async function fetchPost() {
 
         // meta: 작성자 + 작성일 그대로 표시
         const author = post.author || '익명';
-        postMeta.textContent = `${author} | ${post.createdAt}`;
+        const createdDate = new Date(post.createdAt);
+        postMeta.textContent = `${author} | ${createdDate.toLocaleString('ko-KR')}`;
+
 
         // contentBlocks 렌더링
         renderContentBlocks();
@@ -144,3 +146,4 @@ deleteBtn.addEventListener('click', async () => {
 });
 
 fetchPost();
+
