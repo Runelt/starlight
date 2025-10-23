@@ -3,7 +3,7 @@ import { showToast } from './alert.js';
 const postMeta = document.getElementById('post-meta');
 const postTitle = document.getElementById('post-title');
 const postContent = document.getElementById('post-content');
-const postVideo = document.getElementById('post-video');
+const postMedia = document.getElementById('post-media'); // 이미지/비디오 렌더링용 div
 
 const commentsListEl = document.getElementById('comments-list');
 const commentFormWrap = document.getElementById('comment-form-wrap');
@@ -18,7 +18,7 @@ const postId = params.get('id');
 
 backBtn.addEventListener('click', () => window.history.back());
 
-// 현재 사용자 (로컬 시뮬레이션용)
+// 현재 사용자
 const currentUser = localStorage.getItem('currentUser');
 const currentAdmin = localStorage.getItem('currentAdmin');
 
@@ -29,45 +29,68 @@ async function fetchPost() {
         showToast('게시글 ID가 없습니다.');
         return;
     }
+
     try {
         const res = await fetch(`/api/posts/${postId}`);
         if (!res.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
         post = await res.json();
 
-        // meta: 작성자(작게) + 작성일
+        // meta: 작성자 + 작성일
         const author = post.author || '익명';
-        postMeta.textContent = `${author} | ${new Date(post.createdAt).toLocaleString()}`;
+        const created = post.createdAt ? new Date(post.createdAt).toLocaleString() : '';
+        postMeta.textContent = `${author} | ${created}`;
         postTitle.textContent = post.title;
-        postContent.textContent = post.content;
 
-        if (post.video) {
-            postVideo.src = post.video;
-            postVideo.style.display = 'block';
-        } else {
-            postVideo.style.display = 'none';
-        }
+        // content_blocks 렌더링
+        renderContentBlocks();
 
         // 댓글 렌더링
         renderComments();
 
-        // 댓글 작성 폼 표시(로그인한 사용자만)
-        if (currentUser || currentAdmin) {
-            commentFormWrap.style.display = 'block';
-        } else {
-            commentFormWrap.style.display = 'none';
-        }
+        // 댓글 작성 폼 표시
+        commentFormWrap.style.display = (currentUser || currentAdmin) ? 'block' : 'none';
 
-        // 삭제 버튼 표시: 작성자 또는 admin만
-        if ((currentUser && currentUser === post.author) || currentAdmin) {
-            deleteBtn.style.display = 'inline-block';
-        } else {
-            deleteBtn.style.display = 'none';
-        }
+        // 삭제 버튼 표시
+        deleteBtn.style.display = ((currentUser && currentUser === post.author) || currentAdmin) ? 'inline-block' : 'none';
     } catch (err) {
         showToast(err.message);
     }
 }
 
+// content_blocks 렌더링
+function renderContentBlocks() {
+    postContent.innerHTML = '';
+    postMedia.innerHTML = '';
+
+    if (!Array.isArray(post.contentBlocks) || post.contentBlocks.length === 0) {
+        postContent.textContent = '내용이 없습니다.';
+        return;
+    }
+
+    post.contentBlocks.forEach(block => {
+        if (!block || !block.type) return;
+
+        if (block.type === 'text') {
+            const p = document.createElement('p');
+            p.textContent = block.content || '';
+            postContent.appendChild(p);
+        } else if (block.type === 'image') {
+            const img = document.createElement('img');
+            img.src = block.url;
+            img.alt = block.filename || '';
+            img.style.maxWidth = '100%';
+            postMedia.appendChild(img);
+        } else if (block.type === 'video') {
+            const video = document.createElement('video');
+            video.src = block.url;
+            video.controls = true;
+            video.style.maxWidth = '100%';
+            postMedia.appendChild(video);
+        }
+    });
+}
+
+// 댓글 렌더링
 function renderComments() {
     commentsListEl.innerHTML = '';
     const comments = Array.isArray(post.comments) ? post.comments : [];
@@ -75,6 +98,7 @@ function renderComments() {
         commentsListEl.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
         return;
     }
+
     comments.forEach(c => {
         const el = document.createElement('div');
         el.className = 'comment';
@@ -91,8 +115,6 @@ commentSubmitBtn.addEventListener('click', async () => {
 
     const authorName = currentUser || currentAdmin || '익명';
     const newComment = { author: authorName, text };
-
-    // push locally
     const newComments = Array.isArray(post.comments) ? [...post.comments, newComment] : [newComment];
 
     try {
@@ -120,7 +142,7 @@ deleteBtn.addEventListener('click', async () => {
         showToast('게시글이 삭제되었습니다!');
         setTimeout(() => {
             window.location.href = 'index.html';
-        }, 1000); // toast가 사라진 후 이동
+        }, 1000);
     } catch (err) {
         showToast(err.message);
     }
