@@ -39,10 +39,20 @@ async function fetchPost() {
 
         let formatted = '';
 
-        // UTC 기준으로 파싱 후 한국 시간으로 변환
+        // DB에서 받은 시간을 그대로 Date 객체로 변환
+        // PostgreSQL이 이미 UTC로 저장하고 있으므로 그냥 파싱
         if (dbTime) {
-            const utcDate = new Date(dbTime + 'Z'); // 'Z'를 붙여 UTC로 인식
-            formatted = utcDate.toLocaleString('ko-KR', { hour12: false, timeZone: 'Asia/Seoul' });
+            const date = new Date(dbTime);
+            formatted = date.toLocaleString('ko-KR', { 
+                hour12: false, 
+                timeZone: 'Asia/Seoul',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
 
         postMeta.textContent = `${author} | ${formatted}`;
@@ -78,18 +88,24 @@ function renderContentBlocks() {
             case 'text':
                 el = document.createElement('p');
                 el.textContent = block.content || '';
+                el.style.marginBottom = '16px';
+                el.style.lineHeight = '1.6';
                 break;
             case 'image':
                 el = document.createElement('img');
                 el.src = block.url || '';
                 el.alt = block.filename || '';
                 el.style.maxWidth = '100%';
+                el.style.marginBottom = '16px';
+                el.style.borderRadius = '8px';
                 break;
             case 'video':
                 el = document.createElement('video');
                 el.src = block.url || '';
                 el.controls = true;
                 el.style.maxWidth = '100%';
+                el.style.marginBottom = '16px';
+                el.style.borderRadius = '8px';
                 break;
             default:
                 return; // 알 수 없는 타입은 무시
@@ -133,6 +149,7 @@ commentSubmitBtn.addEventListener('click', async () => {
         post.comments = newComments;
         commentInput.value = '';
         renderComments();
+        showToast('댓글이 등록되었습니다');
     } catch (err) {
         showToast(err.message);
     }
